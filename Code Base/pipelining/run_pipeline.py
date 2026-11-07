@@ -1,15 +1,19 @@
 """
 run_pipeline.py - build the final submissions from the competition data in one go.
 
-  Model 1 (iter4)  disruption_prob            P(material disrupted), per week (iter3 + news stories)
+  Model 1 (iter4)  disruption_prob            P(material disrupted), per week (iter3 + news stories),
+                                              sharpened: sigmoid(1.5 logit p)
   Model 2 (iter3)  price_forecast             benchmark price (calm mean reversion + shock on/off mix)
-  Model 3 (iter1)  order_units + share_*      stochastic LP on Model 1's hazards
+  Model 3          order_units + share_*      main:  iter3 moderate, score-aware stochastic LP (lean)
+                                              hedge: iter1 aggressive, stress futures (heavily hedged)
+Kaggle ranks a team by the better of its 2 selected files, so the two plans are built to win in
+different futures: on 48 past windows the pair averages 56.1 best-of-two (old pair: 49.4).
 Every window is forecast from min(window start - 1, last week in the data): with Phase 2 data
 (weeks 1-221) the private window 222-234 is planned from week 221.
 
 Writes to --out-dir:
-  submission_moderate.csv     main pick (Model 3 default settings)
-  submission_aggressive.csv   hedge pick (adds stress futures)
+  submission_moderate.csv     main pick (Model 3 iter3 MODERATE)
+  submission_aggressive.csv   hedge pick (Model 3 iter1 AGGRESSIVE)
   landed_costs.csv            Model 2's per-supplier landed cost forecasts (for inspection, not uploaded)
 and prints checks worth reading before uploading: data weeks, shocks active at the last week,
 signals past their training range, futures premiums, and the order volume of each plan.
@@ -33,8 +37,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PATHS = {
     "model1": os.path.join(HERE, "Model 1", "iter4", "model1.py"),
     "model2": os.path.join(HERE, "Model 2", "iter3", "model2.py"),
-    "model3": os.path.join(HERE, "Model 3", "iter1", "model3.py"),
+    "model3": os.path.join(HERE, "Model 3", "iter3", "model3.py"),
+    "model3_hedge": os.path.join(HERE, "Model 3", "iter1", "model3.py"),
 }
+SHARPEN_K = 1.5
 WINDOWS = ((209, 221), (222, 234))
 
 
@@ -112,6 +118,8 @@ def main():
                     help="iter4 (default) adds the news story layer, +2.96 on the public LB vs iter3; "
                          "see README.md")
     ap.add_argument("--tag", default="", help="suffix for output file names, e.g. _wild")
+    ap.add_argument("--sharpen", type=float, default=SHARPEN_K,
+                    help="Model 1 sharpening k (1 = off); needs Model 1 iter4")
     args = ap.parse_args()
     PATHS["model1"] = os.path.join(HERE, "Model 1", args.model1_iter, "model1.py")
     os.environ["MODEL1_DIR"] = os.path.dirname(PATHS["model1"])
@@ -125,23 +133,24 @@ def main():
     if args.model1_iter == "iter4" and not glob.glob(os.path.join(data_dir, "*news.csv")):
         print("  WARNING: news.csv not found - the iter4 news layer will be off")
 
-    m1, m2, m3 = (load_module(n) for n in ("model1", "model2", "model3"))
+    m1, m2, m3, m3h = (load_module(n) for n in ("model1", "model2", "model3", "model3_hedge"))
     data = m1.load_data(data_dir)
     world = m3.World(m3.load_data(data_dir))
+    world_h = m3h.World(m3h.load_data(data_dir))
+    cfg1 = m1.Config(sharpen_k=args.sharpen) if "sharpen_k" in m1.Config.__dataclass_fields__ else m1.Config()
     if not args.skip_checks:
         checks(m1, m2, data, world.last_week)
 
     print("\n[1/3] Model 1: disruption_prob")
-    sub = m1.fill_submission(m1.Panels(data), sample, windows=WINDOWS)
+    sub = m1.fill_submission(m1.Panels(data), sample, windows=WINDOWS, config=cfg1)
     print("[2/3] Model 2: price_forecast + landed costs")
     pdata = m2.PriceData(data)
     sub = m2.fill_submission(pdata, sub, windows=WINDOWS)
     m2.export_for_model3(pdata, windows=WINDOWS, out_path=os.path.join(args.out_dir, f"landed_costs{args.tag}.csv"))
 
-    print("[3/3] Model 3: order_units + shares (moderate and aggressive)")
-    dem = data["demand"]
-    for name, cfg in (("moderate", m3.MODERATE), ("aggressive", m3.AGGRESSIVE)):
-        out = m3.fill_submission(world, sub.copy(), windows=WINDOWS, cfg=cfg)
+    print("[3/3] Model 3: order_units + shares (main: iter3 moderate, hedge: iter1 aggressive)")
+    for name, mod, w_, cfg in (("moderate", m3, world, m3.MODERATE), ("aggressive", m3h, world_h, m3h.AGGRESSIVE)):
+        out = mod.fill_submission(w_, sub.copy(), windows=WINDOWS, cfg=cfg)
         path = os.path.join(args.out_dir, f"submission_{name}{args.tag}.csv")
         out.to_csv(path, index=False)
         wk = out.id.str.extract(r"^w(\d+)_")[0].astype(int)

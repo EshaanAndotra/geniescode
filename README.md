@@ -17,10 +17,12 @@ python run_pipeline.py
 
 This runs Model 1, then Model 2, then Model 3, and writes two files:
 
-- `submissions/submission_moderate.csv` is the **main pick**.
-- `submissions/submission_aggressive.csv` is the **hedge pick**.
+- `submissions/submission_moderate.csv` is the **main pick**: Model 3 iter3, a lean plan that wins calm windows.
+- `submissions/submission_aggressive.csv` is the **hedge pick**: Model 3 iter1 aggressive, a heavily hedged plan that wins when a big shock starts mid-window.
 
-The private window, weeks 222 to 234, is planned from week 221. Both files pass every format rule before they're written. The run takes about 15 seconds. Before uploading, read the checks it prints:
+Both files share the same `disruption_prob` (Model 1 iter4, sharpened) and `price_forecast` (Model 2 iter3). Kaggle ranks a team by the **better** of its 2 selected submissions, so the two plans are chosen to win in different futures (section 3a).
+
+The private window, weeks 222 to 234, is planned from week 221. Both files pass every format rule before they're written. The run takes 1 to 2 minutes. Use `--tag _x` to add a suffix to the file names. Before uploading, read the checks it prints:
 
 - which data weeks it found;
 - which shocks are active at the last week;
@@ -38,7 +40,9 @@ Upload both files, then **select both as your final submissions**. If you don't 
 python score_local.py ../../submissions/<file>.csv
 ```
 
-Compare the result with the file's Kaggle public score. A match confirms the simulator.
+Compare the result with the file's Kaggle public score. A match confirms the simulator. `verify_scorer.py` does this for every file with a known public score at once: it tries all combinations of the open scorer details (section 6) and ranks them by how well they reproduce the Kaggle scores.
+
+**Backtesting the whole pipeline.** `python backtest_full.py --tag name` plans 48 past windows the way the private window will be planned (each from the week before it, data up to that week only), scores all five parts, and writes `backtests/bt_name.csv`. It takes about 4 minutes on 8 cores.
 
 ---
 
@@ -75,7 +79,9 @@ All of these were built on Phase 1 data (weeks 1 to 208) and scored on public we
 
 | Submission file | Model 1 | Model 2 | Model 3 | Public score |
 |---|---|---|---|---|
-| `submissions/submission_moderate_wild.csv` | **iter4 (news)** | iter2 | iter1 moderate | **65.29** |
+| `submissions/submission_moderate_iter5.csv` | **iter4 (news), sharpened** | **iter3** | **iter3** (main pick) | **68.40** (best) |
+| `submissions/submission_aggressive_iter5.csv` | iter4 (news), sharpened | iter3 | iter1 aggressive (hedge pick) | not uploaded |
+| `submissions/submission_moderate_wild.csv` | iter4 (news) | iter2 | iter1 moderate | 65.29 |
 | `submissions/C_full_moderate.csv` | iter3 | iter2 | iter1 moderate | 62.33 |
 | `Code Base/pipelining/Model 3/iter2/outputs/submission_B.csv`, as committed in `ebacbf8` | iter3 | iter3 | iter2 plan B (aggressive) | 44.15 |
 | `submissions/E_divtest_zero_rows_single.csv` | same as C | same as C | C, but zero-order rows sent 100% to the largest supplier (scorer test) | not recorded |
@@ -86,13 +92,53 @@ All of these were built on Phase 1 data (weeks 1 to 208) and scored on public we
 
 What the scores show:
 
+- **Iteration 5 adds 3.11 on top of that, for a best of 68.40.** The 68.40 and 65.29 files differ in all three columns: sharpened Model 1, Model 2 iter3 instead of iter2, and Model 3 iter3 instead of iter1 moderate. So the public score alone can't split the gain between them. On the 48-window backtest the same change was +5.3, mostly from Model 3 (section 3a). It is the first out-of-sample check of the new ordering model, on weeks no design choice saw.
 - **The news layer adds 2.96.** The 65.29 and 62.33 files differ only in Model 1.
 - **The heavily hedged plan B scored about 18 points below the moderate plans** on the same weeks. Those weeks rewarded buying cheaply over heavy insurance.
 - **E against C tests how Kaggle counts diversification.** Their orders are identical, so only diversification can differ. A score of about 59.4 means every row counts equally, including zero-order rows. A score of 62.33 means rows are weighted by units.
 
-**The current pipeline differs from these files in one column.** It uses Model 2 iter3 for `price_forecast`, because it beat iter2 head to head (section 5). Orders and shares are unchanged.
+**The current pipeline is iteration 5** (section 3a): Model 2 iter3 for `price_forecast` (it beat iter2 head to head, section 5), sharpened Model 1 probabilities, Model 3 iter3 for the main pick, and Model 3 iter1 aggressive for the hedge pick.
 
-**Rebuilding older files.** `python run_pipeline.py --model1-iter iter3` with Model 2 iter2 reproduces C and D exactly. The default run with Model 2 iter2 reproduces the two "wild" files. Both were checked byte for byte.
+**Rebuilding older files.** `python run_pipeline.py --model1-iter iter3` with Model 2 iter2 and Model 3 iter1 reproduces C and D exactly. The same with Model 1 iter4 reproduces the two "wild" files. Both were checked byte for byte before iteration 5.
+
+### 3a. Iteration 5: what changed and the evidence
+
+The earlier backtests scored Model 3 alone. `backtest_full.py` scores the **whole submission** (P, F and R) on 48 past windows (origins 52 to 193, every 3 weeks). Each window is planned from the week before it with data up to that week only, which is how the private window is planned from week 221. Results are in `Code Base/pipelining/backtests/`.
+
+| Plan | All 48 | Calm (28) | Naive runs short (20) | Worst |
+|---|---|---|---|---|
+| Old main: Model 3 iter1 moderate | 47.3 | 34.2 | 65.7 | 9.4 |
+| Old hedge: Model 3 iter1 aggressive | 42.4 | 22.9 | 69.8 | 7.7 |
+| **New main: Model 3 iter3 + sharpened Model 1** | **52.6** | **47.6** | 59.7 | 4.5 |
+| New hedge: Model 3 iter1 aggressive + sharpened Model 1 | 43.5 | 24.9 | 69.4 | 7.7 |
+| Old pair, better of the two per window | 49.4 | 34.2 | 70.7 | 20.0 |
+| **New pair, better of the two per window** | **57.2** | **47.6** | 70.7 | **27.3** |
+
+"Calm" means naive never runs short in a shock week, so fill skill is undefined (counted as 0). The new pair beats the old pair in 37 of the 48 windows.
+
+**Why two different plans.** Kaggle keeps the better of a team's 2 selected submissions. The lean plan wins calm windows, and the hedged plan wins windows where a big shock starts mid-window: the Kestria ban at week 99, or the 8-week Merrow closure at week 173. The lean plan is the better one in 39 of the 48 windows, and the hedge rescues most of the rest.
+
+**The changes, one at a time** (average over the 48 windows, unsharpened Model 1 unless noted):
+
+| Step | All 48 |
+|---|---|
+| Model 3 iter1 moderate | 47.3 |
+| + plan calm weeks at 0.975 × normal capacity | 48.2 |
+| + no forced minimum share | 49.9 |
+| Model 3 iter3 (all changes below) | 51.5 |
+| + Model 1 sharpening (k = 1.5) | 52.6 |
+| Model 3 iter3, hazards × 2.5 | 51.1 (not used) |
+| Model 3 iter3 aggressive (stress futures) | 50.4 (not used; the iter1 hedge pairs better) |
+
+What iter3 fixes (details in section 5, Model 3):
+
+1. **Calm capacity is 0.984 × normal** (sd 0.012, no autocorrelation), and calm lead time is exactly the base lead. iter1 planned calm weeks at 1.0 × normal, so orders sized to capacity came up short, and each missing unit cost 5×. In calm windows that was 1 to 4 weeks of demand cost lost per window.
+2. **In calm windows the naive-to-hindsight gap is tiny.** Naive already buys from the cheapest supplier, so its only waste is leftover stock, about 1.5 weeks of purchases per material. iter1 gave back over half of it on hedges: buying from pricier suppliers (4 to 6 weeks of demand cost across materials), extra holding (about 3), and stockouts (1 to 4). iter3 therefore optimizes **points, not dollars**. In each sampled future, dollars are weighted by 40 / (that future's naive-minus-hindsight gap), and shock-week shortfall by 21 / (naive's shortfall).
+3. **Diversification is chosen per material** by scoring candidate share floors exactly. Cheap diversification is taken, for example lithium Kestria/Orinoque, which are 0.5% apart; expensive diversification is skipped, for example aluminum Aurelia at +26%.
+
+**Model 1 sharpening.** P is clipped at 0 per window, and Brier skill is a per-window ratio to the base rate. Sharpening the probabilities to sigmoid(1.5 × logit p) raised mean Brier skill from 0.158 to 0.204 and mean clipped P from 0.213 to 0.247 on the same windows. `Config(sharpen_k=1)` turns it off.
+
+**Caveats.** The 48 windows overlap (13 weeks long, every 3 weeks), so they aren't independent. Both changes were designed on the same 208 weeks they are tested on. The sharpening k was picked from a small grid on these windows.
 
 ---
 
@@ -107,9 +153,13 @@ submissions/                   every file uploaded or built for upload; the pipe
 Code Base/
   pipelining/
     run_pipeline.py            one command: Models 1 -> 2 -> 3, both final files, checks
-    score_local.py             local score of a submission on released weeks
+    score_local.py             local score of a submission on released weeks (+ alternative scorer conventions)
+    backtest_full.py           whole pipeline on 48 past windows, every score part (writes backtests/)
+    verify_scorer.py           after Phase 2: which scorer conventions reproduce the known public scores
+    backtests/                 backtest_full.py results, one CSV per configuration (evidence for section 3a)
     Model 1/
-      iter4/                   CURRENT: iter3 + news story layer (model1.py, news_stories.py)
+      iter4/                   CURRENT: iter3 + news story layer (model1.py, news_stories.py);
+                               the pipeline turns on sharpening (Config.sharpen_k = 1.5)
       iter3/                   supplier/country/lane/tariff hazard model + run notebook + outputs
       iter1/, iter2/, archive/ earlier text/numerical/combined versions (superseded)
     Model 2/
@@ -117,7 +167,8 @@ Code Base/
       iter2/                   structural shock-state forecast (Alan), superseded by iter3
       iter1/                   futures/mean-reversion blend (superseded)
     Model 3/
-      iter1/                   CURRENT (Alan): simulator, scorer, scenarios, stochastic LP
+      iter3/                   CURRENT main pick: score-aware stochastic LP (lean)
+      iter1/                   CURRENT hedge pick (AGGRESSIVE preset): simulator, scenarios, stochastic LP
       iter2/                   Eshaan's version + run notebook + plan A/B outputs
     dq_rules/, sql/, 04_pipeline.py   Databricks data-quality pipeline (rules review/approve)
   lanies nb.ipynb              exploration notebook
@@ -205,7 +256,16 @@ To turn the layer off, use `Config(use_news_stories=False)` or `--model1-iter it
 
 iter2 forecasts the same shock jumps with a probability-weighted mean instead of the mix median. It loses mostly at 9-13 weeks ahead, where iter3's calm mean reversion helps. Futures alone score below carry-forward, at -0.007.
 
-### Model 3: ordering plan (current: iter1, Alan)
+### Model 3: ordering plan (main: iter3, hedge: iter1 aggressive)
+
+**iter3** (`Model 3/iter3/model3.py`) keeps iter1's two-stage stochastic LP and simulator and changes four things.
+
+- **Futures** carry calm capacity noise and lane closures of +3 or +4 lead weeks. Each future records which materials are disrupted, including recovery weeks carried over from before the origin.
+- **Normalizers.** For every future: naive cost, hindsight cost (one block LP over all futures) and naive's shock-week shortfall.
+- **Objective.** Expected points lost: each future's dollars × 40 / gap, plus its shock-week shortfall units × 21 / naive shortfall. The shortfall weight is capped by flooring naive's shortfall at 5% of shock-week demand.
+- **Shares and orders.** Six share-floor options per material, each scored exactly with fill = min(order, capacity) on the noisy futures, plus 9 × row diversification; the best is kept. Orders per supplier stay at or below (calm mean − 2.5 sd) × normal capacity, so a calm future never fills short. That also lets the LP drop fill variables in calm cells, making it about 10× faster.
+
+The table below is the earlier Model 3-only comparison of iter1 against Eshaan's iter2, kept for the record. Section 3a has the full-score comparison against iter3.
 
 A two-stage stochastic linear program per material and window. Stage 1 is the submitted orders, shared by all futures. Stage 2 is fills, stock and shortfall in each sampled future. The objective is the weighted cost: purchases, holding, the stockout penalty, minus the sell-back.
 
@@ -239,6 +299,7 @@ iter1 moderate beat plan A in 32 of the 41 windows. For reference, a plan withou
 - What "average landed cost" means. We assume the mean over the material's suppliers and the window's weeks.
 
 **Weak spots:**
+- **The lean main pick is exposed to a big shock starting mid-window.** Origins 91, 94 and 166 cost it 25 to 50 points against iter1. The hedge pick covers that case, so both must be selected.
 - **The backtests are optimistic.** Every design choice was made after seeing all 208 weeks.
 - **Shock endings drive most remaining error.** That includes the 35-week Kestria event, which the duration curves expected to end sooner.
 - **3 of the 15 past shocks had no warning,** whether from news, futures or anything else.

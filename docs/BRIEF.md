@@ -61,7 +61,7 @@ In the export-ban chains, the futures premium separates real chains from fizzles
 | Announced tariff | KES aluminum and KES semiconductors: 10% → **35% from week 224** (`tariffs.csv`, plus "Aurelia confirms new duties on Kestria aluminum") | Tariffs count as disrupted weeks; past tariffs lasted 10-18 wk |
 | Merrow congestion rising | 28-30 for most of Phase 2, then 40.4 (wk 220) and 43.8 (wk 221) | Above 50 preceded a closure 19 of 19 times. Merrow carries Kestria and Sunda Coast |
 
-**The team was told (Model 1 plan notes) that the test period holds a shock bigger than anything in training.** Nothing in the data confirms it yet. The Kestria signals are the obvious candidate. Treat this as a hypothesis to weigh, not a fact.
+**The team was told (early planning notes; the source isn't in the repo) that the test period holds a shock bigger than anything in training.** Nothing in the data confirms it yet. The Kestria signals are the obvious candidate. Treat this as a hypothesis to weigh, not a fact.
 
 ### 3b. How the current pipeline responds at week 221 (builder run, Nov 7 ~3 PM)
 
@@ -106,7 +106,7 @@ python3 verify_scorer.py --data ../../Data_new     # which scorer conventions re
 
 - `backtest_full.py` plans each past window from the week before it, using only data up to that week, and scores all five parts. With Phase 2 data the origins can run up to 208 (the window 209-221 is now fully observed). Results land in `Code Base/pipelining/backtests/bt_NAME.csv`.
 - The simulator and the scenario LP live in `Model 3/iter1/model3.py`; iter3 imports and extends it.
-- Model 1 also outputs per-source hazards and duration curves (`hazards.csv`, `hazards_sources.csv`, `duration_curves.csv`), which Model 3 samples futures from.
+- Model 1 also computes per-source hazards and duration curves, which Model 3 samples futures from. They're computed in memory on every run; old CSV exports from week 208 were removed from the repo.
 - `submissions/probes/` holds files built to pin down unconfirmed scorer conventions from their public scores (`predictions_F.csv` lists the predicted score under each convention). Whether they've been uploaded isn't recorded. Ask before using upload slots on them.
 
 **Current numbers.** Public leaderboard (Phase 1 files): **68.40 best** (the current pipeline's main pick), 2nd on the leaderboard before Phase 2. On 48 past windows (origins 52-193, every 3 weeks):
@@ -149,7 +149,7 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 | In-shock: median of a two-scenario mix (elevated vs pre-shock price), weighted by P(still on) | +0.071, the biggest piece |
 | Hard switch: add the jump only if P(shock) > 0.5 | 0.053 vs 0.096 for the median of the mix |
 | Onset jumps beyond 4 weeks ahead | Added calm-week error |
-| Current iter3 | **0.096** (iter2 0.075, iter1 0.015). Lithium -0.11 and steel flat, both hurt by the 35-week Kestria event |
+| Current iter3 | **0.096** (iter2 0.075, iter1 0.015; both since removed from the repo). Lithium -0.11 and steel flat, both hurt by the 35-week Kestria event |
 | Current pipeline on the newly observed window 209-221 (origin 208, Phase 2 data) | **-0.034**, below carry-forward. The same run: Brier skill 0.52, F 0.89, fill skill 1.0, total 71.7 locally. One window, so weak evidence, but nobody has looked into it yet |
 
 **Ordering (Model 3).** Average full score on the 48 windows.
@@ -182,6 +182,17 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 - **VN2 inventory challenge (1st place, arXiv 2601.18919, read in full):** predict demand, then order up to a critical-ratio quantile with a safety term. The paper reports no tuned value and no ablation, so it doesn't show how much the safety factor itself mattered. Its 13.2% gain is against the organizers' moving-average benchmark, not other teams. VN2 had fixed lead times, unlimited supply and no end-of-horizon effect, and the paper lists simulator-tuned policies (what Model 3 iter3 already is) as future work. If borrowed, the roles flip: demand is known and supply is uncertain, so forecast delivered units. Rough critical ratio here: short ≈ 4 (5x penalty minus the purchase saved), over at the end ≈ 0.3 → q* ≈ 0.93, near 1 mid-window. Tune on points, not dollars. The only clear appeal is that it's built differently from the LP, so it may win different windows.
 - **M5 Uncertainty (claims unverified; primary sources weren't reachable):** the reported lesson is that calibrated uncertainty beat better point forecasts. The check stands on its own either way: compare realized capacity and lead time against the sampled futures' 10/50/90 percentiles, and the rate of new onsets inside a window against how often they actually happened.
 - **MITSUI commodity prediction (from talk slides and summaries, unverified):** simple linear models were hard to beat. Possible cheap gain: per-horizon shrinkage toward carry-forward, fit on past windows. Make sure every estimated quantity is refit on weeks 1-221.
+
+**Research literature mapped to our decisions** (targeted search, Nov 7, ~3:30 PM; read from abstracts and summaries, not full texts). A search for a closer past competition (Kaggle, hackathons, simulator-scored ordering challenges) found none with published solutions.
+
+| Idea | Source | What it would change here | Status |
+|---|---|---|---|
+| **Decision-focused scenario generation:** tune the generator of futures for the quality of the downstream decision, not the accuracy of the forecast | Hornewall, Delannoy-Pavy, Leclère, Homem-de-Mello, NeurIPS 2025, *Decision Focused Scenario Generation for Contextual Two-Stage Stochastic LP* (convex 2-stage problems only; ours is an LP, so it fits); Islip et al., arXiv 2502.05349 | The next step after iter3's lesson (optimize points, not dollars), applied one level up. Tune the scenario generator's knobs (onset-hazard multiplier and duration multiplier, per source type) to maximize **backtest points**, not Model 1's Brier. A cheap version is a small grid via `backtest_full.py`; no neural network needed | Untested. Closest evidence: all hazards x2.5 gave 51.1 vs 51.5. Onsets alone and per-type multipliers haven't been tried. Risk: 48 overlapping windows and few events, so overfitting is easy |
+| **Ordering when a disruption is anticipated:** when the start is known (or forecast) but the length is random, the optimal policy builds stock before the onset, sized by the duration distribution; with advance supply information, the optimal base-stock level depends on the information state | *Optimal ordering policies when anticipating a disruption in supply or demand*, EJOR (1992); EPFL work on advance supply information (state-dependent (s,S) optimal); *EOQ with supply disruptions under different advance information regimes* (2023) | The stochastic LP already does this implicitly, **but only as well as its futures place the onset week.** ae's analog finding (onset comes the week after the premium last stays above 0.06; 7 of 7) is exactly the information state these papers say the order level should depend on. Check that the generator puts the VAL-cobalt and KES-RE onsets at weeks 222-225 with the right spread | Testable now with the generator at origin 221 |
+| **Mitigation vs inventory vs contingent rerouting:** rare-but-long disruptions favor sourcing mitigation (diversifying away) over inventory; frequent-short ones favor inventory; contingent rerouting needs a backup that can ramp up | Tomlin, *Management Science* 52(5), 2006 | Our bans, country events and the 35-week Kestria event are long relative to 1-6 wk lead times, so the remedy is a **sourcing shift**. Lane closures (2-8 wk, capacity still about 78%) favor a **buffer**. Contingent rerouting isn't available: orders are fixed up front and backup capacity can't ramp. A Kestria/Merrow specialist for the second file should mostly shift shares toward NORTH/ATLANTIC/RAIL suppliers, not stockpile | Design guidance for the second file's menu |
+| News-precursor event models (Hawkes processes, LLMs on news) | Yamin et al., arXiv 2211.12091 (Hawkes change-point *detection* on order data, not forecasting); arXiv 2604.01298 (LLMs on news for probabilistic disruption forecasts) | Little to gain. Our news is templated, and the story-chain layer already works as a hand-built marked event model. An LLM adds cost and noise, not information | Not recommended |
+
+Where innovation is most likely to pay, in my view: (1) choosing the second file for **this** origin by E[max] (open problem 1), and (2) decision-focused tuning of the scenario generator. Neither is a move a generic "look at past competitions" prompt would produce. Both also make a clear story for the video.
 
 ## 7. Ground rules
 

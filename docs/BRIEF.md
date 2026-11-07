@@ -170,6 +170,22 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 | Heavily hedged plan (min share 0.33, penalty 8x, probabilities x1.5) | **44.15 on the public leaderboard**, about 18 below the moderate plans in a mostly calm window |
 | No scenarios, cheapest supplier only | 24.7 (older Model 3-only scale, out of 70) |
 
+**Second file for the private window** (Nov 7, ~4 PM). Main held fixed at `submission_moderate_p2v2.csv`. Gain = E[max(main, B)] - E[main] in total points out of 100, on 500 generator futures at origin 221 (fresh seed, calm price noise) and on the 13 stress scenarios, under both stock rules. The harness matches `score_local` to 1e-3.
+
+| Candidate B | Generator gain | Stress gain |
+|---|---|---|
+| Current hedge (iter1 aggressive) | 0.9 | 0.5 |
+| Merrow / KES-country / calm specialists, own P columns | 1.0 / 0.8 / 2.1 | 0.8 / 4.7 / 3.0 |
+| Onset hazard x0.5 / x1.5 / x2.5 | 1.7 / 1.3 / 1.6 | 1.9 / 2.2 / 2.2 |
+| **E[max]-directed B:** from the x0.5 start, keep the futures where B beats main, replan B on them (orders + own P), repeat twice | **3.7** | **5.1** |
+
+- **Own P columns help.** A B whose disruption_prob matches the futures it bets on beats copying main's P in 9 of 12 comparisons, by up to +3.4.
+- **The winning B is a lean "Merrow and Kestria stay open" bet:** Merrow-lane share 0.78 vs main's 0.46, and disruption_prob about 0.01 on the Merrow-only materials. It scores 39 vs main's 25 in calm and cobalt-only futures, and 59 vs 35 in a South closure. It collapses in Merrow and Kestria shocks, where main covers.
+- **No sign of overfitting** to the planning futures: pool gain 3.62 vs eval gain 3.68.
+- **Trade-off:** in the bigger-than-training Merrow scenario the pair's max falls from 61.4 (with the old hedge) to 55.9. Being worse off overall would take P(bigger-than-training shock) above about 1/3.
+- **Pending:** a historical check (`backtest_pair.py`), and re-planning main on its own cluster with bigger-than-training futures added (alternating optimization).
+- Old ledger note corrected: the "all hazards x2.5" result was effectively onset-only, since the generator's multiplier applies only to new onsets.
+
 **Biggest lesson so far:** the largest gain came from optimizing the score's actual structure (points per window, with per-window normalizers) instead of a proxy (dollars).
 
 ## 6. Open problems: where the points are

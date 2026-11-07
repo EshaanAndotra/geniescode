@@ -1,0 +1,43 @@
+{
+  "risk": "gated_announced",
+  "price": "price_mix",
+  "development_origins": [
+    64,
+    77,
+    90,
+    103,
+    116,
+    129,
+    142
+  ],
+  "evaluation_origins": [
+    155,
+    168,
+    181,
+    194
+  ],
+  "warmup_weeks": [
+    1,
+    12
+  ],
+  "replay_weeks": [
+    13,
+    207
+  ],
+  "replay_rows": 1950,
+  "public_used_for_selection": false,
+  "max_forecast_horizon": 13,
+  "price_minimum_error_candidate": "price_futures",
+  "price_ensemble_excess_mape": 0.0004413129880184768,
+  "price_paired_standard_error": 0.001386223627870137,
+  "price_selection_rule": "Prefer fixed 50/50 futures-tree ensemble if within one paired standard error of development minimum.",
+  "policy": "hedged50",
+  "policy_selection_metric": "Mean 40*F+30*R across development origins only",
+  "policy_maximum_mean_candidate": "conditional_flexible",
+  "policy_hedge_excess_points": 3.169411374895962,
+  "policy_paired_standard_error": 1.7934609309385132,
+  "policy_robustness_rule": "Prefer hedged50 within one paired standard error when its worst development-window fill is no worse.",
+  "challenger_policy": "conditional_flexible",
+  "policy_recommendation_reason": "Explicit fixed50/50 hedge after retrospective stress tests; export development-mean winner separately. The hedge sacrifices some development mean for protection against missed shocks.",
+  "policy_recommendation_informed_by_retrospective_evaluation": true
+}

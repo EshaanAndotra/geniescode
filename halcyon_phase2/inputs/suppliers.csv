@@ -1,0 +1,31 @@
+material,country,country_name,lane,base_lead_weeks,normal_capacity_units,base_tariff
+lithium,VAL,Valdmar,NORTH,3,600,0.04
+lithium,ORI,Orinoque,SOUTH,3,960,0.02
+lithium,KES,Kestria,MERROW,4,1680,0.1
+cobalt,VAL,Valdmar,NORTH,3,300,0.04
+cobalt,KES,Kestria,MERROW,4,840,0.1
+cobalt,ORI,Orinoque,SOUTH,3,480,0.02
+copper,ORI,Orinoque,SOUTH,3,7000,0.02
+copper,VAL,Valdmar,NORTH,3,4000,0.04
+copper,HAL,Halvard,ATLANTIC,3,2500,0.02
+aluminum,KES,Kestria,MERROW,4,25200,0.1
+aluminum,AUR,Aurelia,RAIL,1,9000,0.0
+aluminum,HAL,Halvard,ATLANTIC,3,14400,0.02
+steel,HAL,Halvard,ATLANTIC,3,40000,0.02
+steel,AUR,Aurelia,RAIL,1,25000,0.0
+steel,KES,Kestria,MERROW,4,70000,0.1
+rare_earths,KES,Kestria,MERROW,4,560,0.1
+rare_earths,VAL,Valdmar,NORTH,3,320,0.04
+rare_earths,HAL,Halvard,ATLANTIC,3,200,0.02
+semiconductors,KES,Kestria,MERROW,4,125,0.1
+semiconductors,SUN,Sunda Coast,MERROW,4,72,0.03
+semiconductors,HAL,Halvard,ATLANTIC,3,45,0.02
+polymer_resin,SUN,Sunda Coast,MERROW,4,20800,0.03
+polymer_resin,AUR,Aurelia,RAIL,1,13000,0.0
+polymer_resin,KES,Kestria,MERROW,4,36400,0.1
+specialty_glass,HAL,Halvard,ATLANTIC,3,5600,0.02
+specialty_glass,SUN,Sunda Coast,MERROW,4,9800,0.03
+specialty_glass,AUR,Aurelia,RAIL,1,3500,0.0
+natural_gas,VAL,Valdmar,NORTH,3,8000,0.04
+natural_gas,AUR,Aurelia,RAIL,1,5000,0.0
+natural_gas,ORI,Orinoque,SOUTH,3,14000,0.02

@@ -1,0 +1,13 @@
+{
+  "selected_model": "revert_0.35",
+  "tuning_origins": [
+    104,
+    130,
+    156
+  ],
+  "holdout_origin": 182,
+  "tuning_revert_0.35_mape": 0.06542317216031585,
+  "tuning_carry_mape": 0.0664771668506265,
+  "test_revert_0.35_mape": 0.06377777481843604,
+  "test_carry_mape": 0.06759568450987925
+}

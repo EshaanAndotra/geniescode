@@ -1,0 +1,41 @@
+{
+  "forecast_cutoff": 221,
+  "observed_public_weeks": [
+    209,
+    221
+  ],
+  "unknown_private_weeks": [
+    222,
+    234
+  ],
+  "public_score_is_in_sample": true,
+  "estimated_public_score": 95.67499429719287,
+  "public_prediction_points": 30.0,
+  "local_public_financial_points": 40.0,
+  "local_public_resilience_points": 25.67499429719287,
+  "private_predictions_improved_by_this_change": false,
+  "public_fill_rate": 1.0,
+  "public_cost": 4243015.824762887,
+  "outputs": [
+    {
+      "file": "submission_phase2_ready.csv",
+      "validation": {
+        "valid": true,
+        "rows": 260,
+        "columns": 10,
+        "max_share_sum_error": 1.000000082740371e-10
+      },
+      "private_rows_unchanged": true
+    },
+    {
+      "file": "submission_phase2_challenger.csv",
+      "validation": {
+        "valid": true,
+        "rows": 260,
+        "columns": 10,
+        "max_share_sum_error": 1.000000082740371e-10
+      },
+      "private_rows_unchanged": true
+    }
+  ]
+}

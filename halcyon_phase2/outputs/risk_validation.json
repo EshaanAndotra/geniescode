@@ -1,0 +1,39 @@
+{
+  "selected_model": "onset_s10_d6",
+  "tuning_origins": [
+    104,
+    130,
+    156
+  ],
+  "holdout_origin": 182,
+  "tuning_brier": {
+    "historical": 0.3147883382642998,
+    "markov": 0.3009897641818349,
+    "hgb_small": 0.41834494810671063,
+    "hgb_deep": 0.3914690574264176,
+    "logistic": 0.42288982258248203,
+    "blend": 0.36459161151585945,
+    "conservative": 0.3190629126420549,
+    "onset_s10_d3": 0.2895170135257569,
+    "onset_s10_d6": 0.2857329473637446,
+    "onset_s30_d3": 0.2919721631630709,
+    "onset_s30_d6": 0.2900867142239349
+  },
+  "holdout_brier": {
+    "historical": 0.08188624562250935,
+    "markov": 0.04174519593594529,
+    "hgb_small": 0.05907774665718896,
+    "hgb_deep": 0.05544363205361137,
+    "logistic": 0.06094638439008704,
+    "blend": 0.04867021162838357,
+    "conservative": 0.059671789971566754,
+    "onset_s10_d3": 0.04174519593594528,
+    "onset_s10_d6": 0.04174519593594528,
+    "onset_s30_d3": 0.04174519593594528,
+    "onset_s30_d6": 0.04174519593594528
+  },
+  "holdout_brier_skill": 0.49020503237640034,
+  "feature_count": 199,
+  "max_training_target_week": 208,
+  "validation": "Fixed origin, horizons 1-26; all training labels end at or before each origin. Model chosen only on origins104/130/156."
+}

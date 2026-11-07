@@ -1,0 +1,174 @@
+{
+  "model_selection": {
+    "risk": "gated_announced",
+    "price": "price_mix",
+    "development_origins": [
+      64,
+      77,
+      90,
+      103,
+      116,
+      129,
+      142
+    ],
+    "evaluation_origins": [
+      155,
+      168,
+      181,
+      194
+    ],
+    "warmup_weeks": [
+      1,
+      12
+    ],
+    "replay_weeks": [
+      13,
+      207
+    ],
+    "replay_rows": 1950,
+    "public_used_for_selection": false,
+    "max_forecast_horizon": 13,
+    "price_minimum_error_candidate": "price_futures",
+    "price_ensemble_excess_mape": 0.0004413129880184768,
+    "price_paired_standard_error": 0.001386223627870137,
+    "price_selection_rule": "Prefer fixed 50/50 futures-tree ensemble if within one paired standard error of development minimum.",
+    "policy": "hedged50",
+    "policy_selection_metric": "Mean 40*F+30*R across development origins only",
+    "policy_maximum_mean_candidate": "conditional_flexible",
+    "policy_hedge_excess_points": 3.169411374895962,
+    "policy_paired_standard_error": 1.7934609309385132,
+    "policy_robustness_rule": "Prefer hedged50 within one paired standard error when its worst development-window fill is no worse.",
+    "challenger_policy": "conditional_flexible",
+    "policy_recommendation_reason": "Explicit fixed50/50 hedge after retrospective stress tests; export development-mean winner separately. The hedge sacrifices some development mean for protection against missed shocks.",
+    "policy_recommendation_informed_by_retrospective_evaluation": true
+  },
+  "validation": {
+    "valid": true,
+    "rows": 260,
+    "columns": 10,
+    "max_share_sum_error": 1.0000011929633956e-10
+  },
+  "historical_rows": 1950,
+  "original_data_cutoff": 208,
+  "final_data_cutoff": 221,
+  "public": [
+    {
+      "origin": 208,
+      "start_week": 209,
+      "end_week": 221,
+      "split": "public_audit",
+      "policy": "original",
+      "brier": 0.1310315841911565,
+      "baseline_brier": 0.1404192862426035,
+      "mape": 0.0574386977456423,
+      "baseline_mape": 0.0577121884481857,
+      "P": 0.0420084236725982,
+      "F": 0.6104882781108765,
+      "R": 0.9916809343064829,
+      "score_proxy": 55.43021186380749,
+      "cost": 4805754.137276907,
+      "cost_saving": 0.1550683940088913,
+      "fill_rate": 1.0,
+      "shock_fill": 1.0,
+      "naive_shock_fill": 0.8654984576516292,
+      "diversification": 0.9722697810216095,
+      "version": "original"
+    },
+    {
+      "origin": 208,
+      "start_week": 209,
+      "end_week": 221,
+      "split": "public_audit",
+      "policy": "hedged50",
+      "brier": 0.1169298611397397,
+      "baseline_brier": 0.1404192862426035,
+      "mape": 0.056056737413523,
+      "baseline_mape": 0.0577121884481857,
+      "P": 0.1118422112751085,
+      "F": 0.6771752145412531,
+      "R": 0.9572389242508752,
+      "score_proxy": 59.15944264742963,
+      "cost": 4709409.683529654,
+      "cost_saving": 0.1720073533704557,
+      "fill_rate": 1.0,
+      "shock_fill": 1.0,
+      "naive_shock_fill": 0.8654984576516292,
+      "diversification": 0.8574630808362504,
+      "version": "revised"
+    }
+  ],
+  "mean_by_split": [
+    {
+      "split": "cold_start",
+      "version": "original",
+      "score_proxy": 43.12512803967195,
+      "brier": 0.034388331203070326,
+      "mape": 0.046672330039869,
+      "fill_rate": 0.9975809780217537,
+      "cost_saving": 0.10212106649285545
+    },
+    {
+      "split": "cold_start",
+      "version": "revised",
+      "score_proxy": 46.53582776121095,
+      "brier": 0.0337483426188071,
+      "mape": 0.04859975012142698,
+      "fill_rate": 0.9944142381356831,
+      "cost_saving": 0.1236120646543023
+    },
+    {
+      "split": "development",
+      "version": "original",
+      "score_proxy": 37.87912911722401,
+      "brier": 0.14414272702410336,
+      "mape": 0.05522714993194119,
+      "fill_rate": 0.965751360165613,
+      "cost_saving": 0.20921627796078382
+    },
+    {
+      "split": "development",
+      "version": "revised",
+      "score_proxy": 44.441840936790705,
+      "brier": 0.10932760852068944,
+      "mape": 0.05481566355808225,
+      "fill_rate": 0.9751622673367292,
+      "cost_saving": 0.2464418265597287
+    },
+    {
+      "split": "evaluation",
+      "version": "original",
+      "score_proxy": 29.971400542719348,
+      "brier": 0.13915967528122272,
+      "mape": 0.04848674618317035,
+      "fill_rate": 0.9841658365511576,
+      "cost_saving": 0.09313980026282223
+    },
+    {
+      "split": "evaluation",
+      "version": "revised",
+      "score_proxy": 29.584070976624314,
+      "brier": 0.14325028837156425,
+      "mape": 0.047258522160526575,
+      "fill_rate": 0.9737916923792325,
+      "cost_saving": 0.08989833416458157
+    },
+    {
+      "split": "public_audit",
+      "version": "original",
+      "score_proxy": 55.43021186380749,
+      "brier": 0.1310315841911565,
+      "mape": 0.0574386977456423,
+      "fill_rate": 1.0,
+      "cost_saving": 0.1550683940088913
+    },
+    {
+      "split": "public_audit",
+      "version": "revised",
+      "score_proxy": 59.15944264742963,
+      "brier": 0.1169298611397397,
+      "mape": 0.056056737413523,
+      "fill_rate": 1.0,
+      "cost_saving": 0.1720073533704557
+    }
+  ]
+}

@@ -8,7 +8,7 @@ This brief gives facts, evidence and open problems. **It doesn't prescribe an ar
 
 ## 0. Status (Sat Nov 7, night): final files built
 
-**Recommended final selection** (both validated): `submissions/final_main.csv` + `submissions/final_hedge_pshift.csv`. Backup hedge: `final_hedge.csv`. They're on disk, not yet committed. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
+**Recommended final selection** (both validated): `submissions/final_main.csv` + `submissions/final_hedge_pshift.csv`. Backup hedge: `final_hedge.csv`. Committed in 859ebf0 on alan/best-model. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
 
 **How the finals are built:**
 - Model 1 iter5: `Config(sharpen_k=1.5, premium_mix=0.5, tariff_floor=0.95)`.

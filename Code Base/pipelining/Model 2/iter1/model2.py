@@ -141,7 +141,12 @@ def load_data(data_dir):
 
 def _ffill(x):
     """Forward-fill a [N, W] array along weeks (leaves leading NaNs)."""
-    return pd.DataFrame(x).ffill().values
+    out = np.array(x, dtype=float, copy=True)
+    for i in range(1, out.shape[1]):
+        m = np.isnan(out[:, i])
+        if m.any():
+            out[m, i] = out[m, i - 1]
+    return out
 
 
 # ----------------------------------------------------------------------------- panels
@@ -193,9 +198,9 @@ class PricePanels:
         with np.errstate(divide="ignore", invalid="ignore"):
             self.prem = self.fut_ff / np.maximum(self.spot_ff, 1e-9) - 1.0
 
-        # trailing mean of spot (past only, incl. current week)
-        s = pd.DataFrame(self.spot_ff)
-        self.mean26 = s.rolling(window=self.cfg.mean_window, min_periods=8).mean().values
+        # trailing mean of spot along weeks (past only, incl. current week)
+        st = pd.DataFrame(self.spot_ff.T)                       # weeks x suppliers
+        self.mean26 = st.rolling(window=self.cfg.mean_window, min_periods=8).mean().values.T
 
         # benchmark price: average spot across the material's suppliers
         self.bench = np.vstack([np.nanmean(self.spot[u], axis=0) for u in self.mat_units])
@@ -416,11 +421,19 @@ class TreeMember:
         ok = np.isfinite(spot) & (spot > 0)
         with np.errstate(divide="ignore", invalid="ignore"):
             prem = np.where(ok, panels.fut_ff[:, t0] / safe - 1.0, 0.0)
-            mom = lambda lag: np.where(ok and t0 >= lag, spot / panels.spot_ff[:, t0 - lag] - 1.0, 0.0) \
-                if t0 >= lag else np.zeros(len(spot))
+
+            def mom(lag):
+                if t0 < lag:
+                    return np.zeros(len(spot))
+                m = spot / panels.spot_ff[:, t0 - lag] - 1.0
+                return np.where(ok & np.isfinite(m), m, 0.0)
+
             dev = np.where(ok, panels.mean26[:, t0] / safe - 1.0, 0.0)
-            cong_chg = panels.container_ff[panels.sup_lane, t0] / \
-                panels.container_ff[panels.sup_lane, max(t0 - 1, 0)] - 1.0 if t0 >= 1 else np.zeros(len(spot))
+            if t0 >= 1:
+                cc = panels.container_ff[panels.sup_lane, t0] / panels.container_ff[panels.sup_lane, t0 - 1] - 1.0
+                cong_chg = np.where(np.isfinite(cc), cc, 0.0)
+            else:
+                cong_chg = np.zeros(len(spot))
         pend = np.nan_to_num(panels.ann_eff_ff[:, t0], nan=0.0)
         pend = np.where(np.isnan(panels.ann_rate_ff[:, t0]) | (pend <= panels.weeks[t0]), 0.0,
                         np.clip(pend - panels.weeks[t0], 0.0, 13.0))

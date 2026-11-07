@@ -63,6 +63,35 @@ In the export-ban chains, the futures premium separates real chains from fizzles
 
 **The team was told (Model 1 plan notes) that the test period holds a shock bigger than anything in training.** Nothing in the data confirms it yet. The Kestria signals are the obvious candidate. Treat this as a hypothesis to weigh, not a fact.
 
+### 3b. How the current pipeline responds at week 221 (builder run, Nov 7 ~3 PM)
+
+Fallback picks built from Phase 2 data and committed: `submissions/submission_moderate_p2.csv` (main) and `submission_aggressive_p2.csv` (hedge). Both validated.
+
+| Signal | disruption_prob and orders | price_forecast |
+|---|---|---|
+| 35% KES tariff from week 224 | **Responds.** aluminum and semiconductors 0.16 / 0.32 / 1.00 at weeks 222-224, decaying to 0.73 by week 234 (past tariffs lasted 10-18 wk). Orders front-load 1.9-2.4x demand before week 224; KES share drops after | n/a (tariffs hit landed cost, not the benchmark) |
+| Valdmar cobalt export ban | **Responds.** 0.44 / 0.97 / 0.99 at weeks 222-224. Main orders 2.2x demand at week 222 and keeps VAL's share at 0.11-0.33 | **Slips.** +18% only for weeks 223-225, then back to calm from week 226 while P(active) is still 0.84-0.97. Model 2 cuts onset jumps at h = 4. Past bans kept the benchmark up 21-40% for 7+ weeks |
+| Kestria rare earths (premium 0.093) | **Responds.** Material p 0.99 from week 224 | **Slips** the same way (+20% for 2 weeks, then calm) |
+| Kestria country risk (tension 54, +39 in 4 wk; export-limit talk, no material named) | **Slips.** The country-event probability is 0.004-0.018. The country model learned from one event, whose precursor was a sanctions chain, which is absent now | n/a |
+| Merrow congestion 43.8 + clash headlines | Responds via the clash story: lane p 0.41 peak at week 224. Analog: wk 171-173 (tension 24 → 47 → 59, congestion 38 → 55 → 79, then an 8-wk closure). Fizzled clash chains had tension 35-38, congestion 40-45. Now: tension looks like a closure, congestion like a fizzle | n/a |
+
+**Stress test of the private rows** (`Code Base/pipelining/stress_private.py`, about 2 s; hand-built futures for weeks 222-234; points = 40 F + 21 fill skill + 9 diversification, out of 70; P is identical for both files):
+
+| Scenario | Main | Hedge |
+|---|---|---|
+| Calm (tariff only) | 26.7 | 15.2 |
+| VAL cobalt ban only | 27.0 | 16.7 |
+| Cobalt + KES rare earths (the model's view) | 57.5 | 51.4 |
+| Merrow closure 223-230 | 66.7 | 64.3 |
+| KES country event 226-234 / 223-234 | 65.5 / 63.9 | 62.7 / **65.7** |
+| Merrow at 40% capacity 223-234 (bigger than training) | 55.3 | **61.4** |
+| Atlantic closure 225-230 | 26.1 | 7.4 |
+| Southern route closure 225-230 | 33.0 | **36.0** |
+
+What it shows: **at this origin the hedge rarely adds anything.** The main pick wins 9 of 12 scenarios; the hedge wins three, by 2-6 points. Both files score worst (about 27 / 70) in the futures where naive doesn't get hurt (calm, cobalt-only, Atlantic), because naive is close to hindsight there. That makes the second file's slot the biggest open lever. In the cobalt-only and rare-earths-only scenarios the main pick's fill is 1.00: its shares on the about-to-be-banned supplier don't cause shortfalls, because total orders are inflated (cobalt 2.2x demand at week 222) and unfilled units are cancelled at no cost while still counting toward diversification. Its loss there is F (0.48 cobalt-only), not fill. Caveats: the futures carry no price noise and use the sum-of-5 starting stock.
+
+**Starting-stock convention.** The main pick's 209-221 rows equal the 68.40 public file. Locally they score 71.71 with sum-of-first-5-weeks stock but 67.98 with 5 x mean demand. `verify_scorer.py` also ranks 5 x mean first, though no convention reproduces every public score exactly (best max error 1.32). It looks like a small detail, but F moves 0.894 → 0.801 between the two readings. Whether Model 3 *plans* with the right convention hasn't been checked.
+
 ## 4. What exists in the repo
 
 **One-command pipeline:** `Code Base/pipelining/run_pipeline.py`. It runs Model 1 (iter4) → Model 2 (iter3) → Model 3 and writes two files: a main pick (Model 3 iter3, lean) and a hedge pick (Model 3 iter1 aggressive). Every script takes `--data`, so point it at the Phase 2 folder without touching `Data/`:

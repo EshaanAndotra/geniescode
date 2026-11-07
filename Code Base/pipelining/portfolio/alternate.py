@@ -1,9 +1,9 @@
 """alternate.py - step 3b: update both files of the pair (2-cluster split of the futures).
 
   B-step:    B    <- Model 3 iter4 planned on the pool futures where B beats main (B gets its own P shift)
-  main-step: main <- Model 3 iter4 planned on the pool futures where main >= B, plus explicit big-shock futures at
-                     total weight OMEGA (iter1's 4 stress futures + Merrow at 40% capacity + an early Kestria-wide
-                     event), so shocks the generator under-weights stay priced in. main keeps Model 1's P columns.
+  main-step: main <- Model 3 iter4 planned on the pool futures where main >= B, plus generic no-warning shocks
+                     (blindside_futures: random lane / country / supplier, random onset, signal-independent) at
+                     total weight OMEGA, so shocks the generator under-weights stay priced in. main keeps Model 1's P.
 Start: main = Model 3 iter4 (moderate), B = onset hazards x0.5 with its P shift. Rounds: B, main, B, main, B.
 
     cd <scratch folder>; python3 <repo>/Code Base/pipelining/portfolio/alternate.py [omega]
@@ -13,48 +13,56 @@ alt_main.csv / alt_B.csv in the current folder.
 import os, time
 exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cands.py")).read().rsplit("\nif __name__", 1)[0])
 
-OMEGA = 0.10
+OMEGA = 0.15                 # a priori share of main's planning weight on blindside futures (0.15 and 0.20 reported)
 N_POOL = 2000
 ROUNDS = 2
+N_BLIND = 60
+CAP = 400                    # max pool futures per cluster plan (1000 for the week-221 build: seed noise)
 
 
-def big_shock_futures(noise_src):
-    """Planning futures (cap_m, lead_a, cost_m, dis, noise) for shocks bigger or earlier than the generator draws."""
-    mer = W.sup.lane.values == "MERROW"
-    kes = W.sup.country.values == "KES"
-    mer_mats = np.unique(SUP_MAT[mer]); kes_mats = np.unique(SUP_MAT[kes])
-    caps, leads, costs, diss = [], [], [], []
-
-    def add(c, l, k, d):
-        caps.append(c); leads.append(l); costs.append(k); diss.append(d)
-    one, zero = np.ones((U, H)), np.zeros((U, H))
-    # iter1 stress 1: Merrow closed 8 weeks from week 3
-    c, l, d = one.copy(), zero.copy(), np.zeros((M, H), bool)
-    c[mer, 2:10] *= m3.MODERATE.lane_cap; l[mer, 2:10] = m3.MODERATE.lane_lead; d[np.ix_(mer_mats, np.arange(2, 10))] = True
-    add(c, l, one.copy(), d)
-    # iter1 stress 2: each material's cheapest supplier banned all window
-    c, k = one.copy(), one.copy()
-    for mi, units in enumerate(W.mat_units):
-        c[units[np.argmin(INFO.cost_base[units, 0])]] = 0.0
-        k[units] *= np.exp(np.median(INFO.j_single))
-    add(c, zero.copy(), k, np.ones((M, H), bool))
-    # iter1 stress 3: every supplier at 50%
-    add(np.full((U, H), 0.5), zero.copy(), one.copy(), np.ones((M, H), bool))
-    # iter1 stress 4 and an early variant: Kestria-wide event (as weeks 99-133)
-    for a in (0, 1):
-        c, k, d = one.copy(), one.copy(), np.zeros((M, H), bool)
-        c[kes, a:] = m3.MODERATE.country_cap
-        for mi in kes_mats:
-            k[W.mat_units[mi], a:] *= np.exp(INFO.j_cty)
-        d[kes_mats, a:] = True
-        add(c, zero.copy(), k, d)
-    # Merrow at 40% capacity with 4 extra lead weeks from week 2 to the end (bigger than training)
-    c, l, d = one.copy(), zero.copy(), np.zeros((M, H), bool)
-    c[mer, 1:] = 0.40; l[mer, 1:] = 4; d[mer_mats, 1:] = True
-    add(c, l, one.copy(), d)
-    n = len(caps)
-    return dict(cap_m=np.stack(caps), lead_a=np.stack(leads), cost_m=np.stack(costs), dis=np.stack(diss),
-                noise=noise_src[:n], PX=np.zeros((n, M, H)), w=np.full(n, 1.0 / n))
+def blindside_futures(noise_src, n=N_BLIND, seed=4242):
+    """Generic no-warning shocks, independent of the signals at the origin: each future holds one event, its type
+    drawn evenly from {lane closure, country event, single-supplier shock}, its source uniformly within the type
+    (lanes: by realized closure frequency up to the origin),
+    onset uniform on window weeks 1-8, length from Model 1's duration curve for the type. Effects follow the
+    generator: lane cap x lane_cap and +lane_lead weeks; country cap = country_cap and the country price jump;
+    supplier cap and price jump drawn from the single-supplier episodes seen up to the origin."""
+    rng = np.random.default_rng(seed + ORIGIN)
+    cfg, D = m3.MODERATE, INFO.D
+    lanes, ctys = list(W.P.lanes), list(W.P.countries)
+    # lane mix = realized closure onsets up to the origin (+0.5 each so no lane is impossible): Merrow had 3 of 5
+    closed = W.P.lane_closed[:, :W.P.idx(ORIGIN) + 1]
+    lane_w = (closed[:, 1:] & ~closed[:, :-1]).sum(1) + 0.5
+    lane_w = lane_w / lane_w.sum()
+    cap_m, lead_a, cost_m = np.ones((n, U, H)), np.zeros((n, U, H)), np.ones((n, U, H))
+    dis = np.zeros((n, M, H), bool)
+    for s in range(n):
+        typ = ("lane", "country", "supplier")[rng.integers(3)]
+        k = int(rng.integers(0, 8))
+        L = m3._sample_len(rng, lambda x: D.S(typ, x))
+        a = np.zeros(H, bool); a[k:min(k + max(L, 1), H)] = True
+        if typ == "lane":
+            units = np.where(W.sup.lane.values == lanes[rng.choice(len(lanes), p=lane_w)])[0]
+            for u in units:
+                cap_m[s, u, a] *= cfg.lane_cap
+                lead_a[s, u, a] = cfg.lane_lead + (1 if rng.random() < cfg.lane_lead4_p else 0)
+        elif typ == "country":
+            units = np.where(W.sup.country.values == ctys[rng.integers(len(ctys))])[0]
+            for u in units:
+                cap_m[s, u, a] = cfg.country_cap
+            for mi in np.unique(SUP_MAT[units]):
+                cost_m[s, W.mat_units[mi]][:, a] *= np.exp(INFO.j_cty)
+        else:
+            units = np.array([rng.integers(U)])
+            cap_m[s, units[0], a] = rng.choice(INFO.sup_caps)
+            mi = SUP_MAT[units[0]]
+            j = rng.choice(INFO.j_single)
+            for u in W.mat_units[mi]:
+                cost_m[s, u, a] *= np.exp(j)
+        for mi in np.unique(SUP_MAT[units]):
+            dis[s, mi] |= a
+    return dict(cap_m=cap_m, lead_a=lead_a, cost_m=cost_m, dis=dis, noise=noise_src[:n],
+                PX=np.zeros((n, M, H)), w=np.full(n, 1.0 / n))
 
 
 def with_extra(p, extra, omega):
@@ -63,23 +71,23 @@ def with_extra(p, extra, omega):
     return q
 
 
-def alternate(main, B, ref, Tp, assemble_fn, omega=OMEGA, rounds=ROUNDS, log=print):
+def alternate(main, B, ref, Tp, assemble_fn, omega=OMEGA, rounds=ROUNDS, cap=CAP, log=print):
     """main, B: submission frames (main's P columns are kept). ref: pool futures dict; Tp: Truth on the same pool."""
-    extra = big_shock_futures(ref["noise"])
+    extra = blindside_futures(ref["noise"])
     plan_main_P = main.copy()
 
     def b_step(main, B):
         win = Tp.score(B).total.values > Tp.score(main).total.values
         if win.sum() < 20:
             return B
-        p = subset(ref, np.where(win)[0][:400])
+        p = subset(ref, np.where(win)[0][:cap])
         return assemble_fn(plan_main_P, plan_on(p), *shifts(p, ref))
 
     def m_step(main, B):
         keep = Tp.score(main).total.values >= Tp.score(B).total.values
         if keep.sum() < 20:
             return main
-        p = with_extra(subset(ref, np.where(keep)[0][:400]), extra, omega)
+        p = with_extra(subset(ref, np.where(keep)[0][:cap]), extra, omega)
         return assemble_fn(plan_main_P, plan_on(p))
 
     for r in range(rounds):
@@ -95,6 +103,7 @@ def alternate(main, B, ref, Tp, assemble_fn, omega=OMEGA, rounds=ROUNDS, log=pri
 if __name__ == "__main__":
     t0 = time.time()
     omega = float(sys.argv[1]) if len(sys.argv) > 1 else OMEGA
+    cap = int(sys.argv[2]) if len(sys.argv) > 2 else 1000
     Gp = gen(N_POOL, 1000)
     ref = dict(zip(("cap_m", "lead_a", "cost_m", "w", "dis", "noise"), Gp["raw"]))
     ref["PX"] = np.log(Gp["bench"] / BENCH0[None, :, None])
@@ -102,8 +111,8 @@ if __name__ == "__main__":
     Tp = Truth(Gp, "5avg")
     cfg = dataclasses.replace(m3.MODERATE, prob_mult=0.5)
     B0 = assemble(m3.plan_window(W, ORIGIN, S0, E0, cfg, info=INFO), *shifts(pool(N_POOL, 1000, cfg), ref), base=MAIN)
-    main, B = alternate(MAIN, B0, ref, Tp, lambda base, plan, *a: assemble(plan, *a, base=base), omega)
-    main.to_csv("alt_main.csv", index=False); B.to_csv("alt_B.csv", index=False)
+    main, B = alternate(MAIN, B0, ref, Tp, lambda base, plan, *a: assemble(plan, *a, base=base), omega, cap=cap)
+    main.to_csv(f"alt_main_w{omega}.csv", index=False); B.to_csv(f"alt_B_w{omega}.csv", index=False)
     describe("alt_main", main); describe("alt_B", B)
     Fe = gen(500, 777); Fe.pop("raw")
     names, Fs = stress()

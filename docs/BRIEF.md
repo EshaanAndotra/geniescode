@@ -6,6 +6,32 @@ Read this file and `docs/competition.md` (the official rules). That's the full c
 
 This brief gives facts, evidence and open problems. **It doesn't prescribe an architecture.** The current three-model pipeline is a resource, not a spec: any part of it, including the Model 1 → 2 → 3 split itself, can be replaced if the evidence says so.
 
+## 0. Status (Sat Nov 7, night): final files built
+
+**Recommended final selection** (both validated): `submissions/final_main.csv` + `submissions/final_hedge_pshift.csv`. Backup hedge: `final_hedge.csv`. They're on disk, not yet committed. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
+
+**How the finals are built:**
+- Model 1 iter5: `Config(sharpen_k=1.5, premium_mix=0.5, tariff_floor=0.95)`.
+- Model 2 iter5: `Config(jump_by_source=True)`.
+- Main: Model 3 iter4 with `start_stock="sum5"`, n_scen 1000.
+- Hedge: Model 3 iter1 AGGRESSIVE (sum5), n_scen 1000, with disruption_prob floored at 0.50 on the 8 KES/SUN materials for weeks 222-234.
+- `run_pipeline.py` still points at the older modules; the finals were built with a wrapper (the builder's `portfolio/` scripts).
+
+**Historical evidence for the pair** (`portfolio/backtest_pair.py`, 18 real past windows, sum5): max(main, hedge) = 55.57, and **57.11** with the hedge P floor. Worst window about 23. Every alternative second file tested scored lower on history (section 5).
+
+**Settled during the session:**
+1. The scorer's starting stock is sum5 (public-score delta test).
+2. Final solves need n_scen >= 1000; at 200, the seed moved the plan by up to 5.5/70.
+3. A second file built from the model's own view of the future (lean B) fails on history. The hedge's value is insurance against shocks the model misses (4 of 18 windows).
+4. Calibrated forecast changes (iter5) help the P columns. Order futures stay early-biased on purpose.
+
+**Ideas left, all small or risky; don't restart exploration:**
+- (a) Main at n_scen 2000 with stratified rare lane events, so the Atlantic/South closure exposure is stable: small, about 0.5.
+- (b) Per-lane calm base rate (Merrow realized 0.197 vs generator 0.062 per window) in the plan's futures. Untested for orders and could move both files: only with a backtest_pair check.
+- (c) A source-specific ban price-jump adjustment. Rests on 3 events: skip.
+
+**Not agent work:** Kaggle uploads and final selection (the user), the video (the user) and the Databricks port (the user).
+
 ---
 
 ## 1. The goal in one paragraph
@@ -189,6 +215,10 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 **Historical check of that B (`portfolio/backtest_pair.py`, 18 origins, each window planned from its origin, scored on real history):** it **fails**. Overall, max(main, B) = 49.1 vs max(main, current hedge) = 55.6. B gains +1.6 to +6.3 in the calm, premium-chain and recent categories, but collapses in the Merrow (166/169/172: 29 vs 68) and Kestria (94/97: 45 vs 67) windows. Worst window 5.6 vs 23.3. Why: B hedges main *as the generator sees the world*. In the windows that mattered historically the signals were weak at the origin, so main was lean and got blindsided; B was leaner still. The old hedge's value is insurance against what the generator misses (4 of 18 windows). Not promoted. Next: alternating optimization, with main specialized for shocks using generic blindside futures whose weight comes from calibration evidence, not tuning.
 
 **Number of sampled futures (infra, Nov 7).** The final plan for weeks 222-234 is one LP solve. Stress mean over 13 scenarios, out of 70: at **n_scen = 200** (the default) seeds 0-4 give 47.97-53.45 (sd 2.04). At **1000**, 51.72-53.37 (sd 0.87, mean **+1.4**). The spread sits almost entirely in the Atlantic and South closure scenarios (rare lane events); without them the 1000-future spread is 0.13. **Final picks must use n_scen >= 1000** (one solve takes about 70 s; 2000 is about 3-5 min). Rare lane events may still need more futures or stratified sampling. Backtests at 200 carry this noise per window; it averages down over many windows.
+
+**Step 3b (alternating main with generic blindside futures): NOT adopted.** 18 origins, sum5, max(main3b, B) vs max(main, hedge) = 55.57. At blindside weight 0.27 (the calibration rate): 54.05; Kestria 49.8 vs 66.5, Merrow 57.6 vs 67.7, but calm +1.2, premium chain +2.5, recent +6.0; worst window 27.9 vs 23.3. At weight 0.15: 51.42 (origin 166 collapses to 5.2). It only wins when the shock categories are left out. Generic blindside futures move main partway toward the hedge but can't match its 62-67 in blindside windows, and they cost 5-14 points in calm windows. **Final pair: main (Model 3 iter4, sum5) + hedge (iter1 aggressive), both n_scen = 1000, iter5 P.** Built and validated: `submissions/final_main.csv` + `submissions/final_hedge_pshift.csv`, the hedge with disruption_prob floored at 0.50 on the 8 KES/SUN materials for weeks 222-234. Re-scored on the 18-origin backtest, the floor lifts max(main, hedge) from 55.57 to **57.11**, costing 0.2 in the premium-chain category (noise). `final_hedge.csv` (no floor) is the backup. **These are the recommended final selections.**
+
+**Starting-stock rule RESOLVED: the scorer uses sum5** (Nov 7 evening). Public score `submission_moderate_p2v2.csv` = **67.90** vs 68.40 for `submission_moderate_iter5.csv`. Local delta on 209-221: sum5 -0.54 (units-weighted diversification -0.38), 5avg +2.93. Only sum5 matches the observed -0.50. The final build plans with sum5 and evaluates with sum5. The min-stock hedge in Model 3 iter4 is no longer needed. The remaining level offset (local about 71 vs public 68) comes from some other convention; it moves both files equally.
 
 **Forecast columns, iter5 (adopted for the final build, Nov 7 evening).** `Model 1/iter5` + `Model 2/iter5`; with all flags off they equal iter4 exactly. Orders are unaffected, since Model 3 still reads iter4's q.
 - `premium_mix=0.5`: calibrated onset timing for open premium runs (P columns only). Brier on the changed rows over 18 premium-chain origins: 0.1871 → 0.1731, driven by recent origins; flat on weeks 1-208 alone. **Adopted.**

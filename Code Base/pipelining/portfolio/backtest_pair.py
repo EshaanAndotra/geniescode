@@ -3,8 +3,9 @@
 For each origin o (window o+1..o+13, planned with data up to o only):
   main  = Model 3 iter4 orders + Model 1 iter4 (sharpened) disruption_prob + Model 2 iter4 price_forecast
   hedge = Model 3 iter1 aggressive orders (sum5 planning) + main's P columns          (the current second file)
-  B     = the E[max] procedure from iterB.py: start from onset hazards x0.5 with its own P shift, then twice
-          replan on the generator futures (2,000, from origin o) where B beats main
+  B     = --procedure lean: the E[max] procedure from iterB.py (start from onset hazards x0.5 with its own P shift,
+          then twice replan on the generator futures (2,000, from origin o) where B beats main);
+          --procedure 3b: alternate.py, both files updated (main3b + B), blindside weight --omega
 and every file is scored on the real window with score_local.score under both starting-stock rules.
 
     cd <scratch folder>; python3 <repo>/Code Base/pipelining/portfolio/backtest_pair.py [--origins 55,70,...] [--jobs 6]
@@ -21,7 +22,7 @@ N_POOL, N_ITER = 2000, 2
 
 def _init():
     g = globals()
-    exec(open(os.path.join(HERE, "cands.py")).read().rsplit("\nif __name__", 1)[0], g)
+    exec(open(os.path.join(HERE, "alternate.py")).read().rsplit("\nif __name__", 1)[0], g)   # includes cands, e2e
     m1 = sys.modules["model1"]
     m2 = rp.load_module("model2")
     g["m1"], g["m2"] = m1, m2
@@ -68,7 +69,8 @@ def _with_orders(base, plan, p_shift=None, px_shift=None):
     return sub
 
 
-def run_origin(o):
+def run_origin(args):
+    o, procedure, omega = args
     t0 = time.time()
     _set_origin(o)
     main = _main_sub(o)
@@ -83,18 +85,25 @@ def run_origin(o):
     cfg = dataclasses.replace(m3.MODERATE, prob_mult=0.5)
     p05 = pool(N_POOL, 1000 + o, cfg)
     B = _with_orders(main, m3.plan_window(W, o, o + 1, o + 13, cfg, info=INFO), *shifts(p05, ref))
-    for it in range(N_ITER):
-        win = Tp.score(B).total.values > main_p
-        if win.sum() < 20:
-            break
-        p = subset(ref, np.where(win)[0][:400])
-        B = _with_orders(main, plan_on(p), *shifts(p, ref))
+    files = {"main": main, "hedge": hedge}
+    if procedure == "lean":
+        for it in range(N_ITER):
+            win = Tp.score(B).total.values > main_p
+            if win.sum() < 20:
+                break
+            p = subset(ref, np.where(win)[0][:400])
+            B = _with_orders(main, plan_on(p), *shifts(p, ref))
+        files["B"] = B
+    else:
+        files["main3b"], files["B"] = alternate(main, B, ref, Tp, lambda base, plan, *a: _with_orders(base, plan, *a),
+                                                omega, cap=CAP, log=None)
     rows = []
     for mode in ("sum5", "5avg"):
-        s = {k: score_local.score(W, f, o + 1, o + 13, mode) for k, f in (("main", main), ("hedge", hedge), ("B", B))}
-        rows.append(dict(origin=o, stock=mode, main=s["main"]["score"], hedge=s["hedge"]["score"], B=s["B"]["score"],
-                         main_P=s["main"]["P"], B_P=s["B"]["P"], naive_short=bool(np.isfinite(s["main"]["fill_skill"])),
-                         secs=time.time() - t0))
+        s = {k: score_local.score(W, f, o + 1, o + 13, mode) for k, f in files.items()}
+        r = dict(origin=o, stock=mode, naive_short=bool(np.isfinite(s["main"]["fill_skill"])), secs=time.time() - t0)
+        r.update({k: v["score"] for k, v in s.items()})
+        r.update({f"{k}_P": v["P"] for k, v in s.items()})
+        rows.append(r)
     return rows
 
 
@@ -102,27 +111,33 @@ def main_cli():
     ap = argparse.ArgumentParser()
     ap.add_argument("--origins", default=",".join(str(o) for v in CATS.values() for o in v))
     ap.add_argument("--jobs", type=int, default=6)
+    ap.add_argument("--procedure", default="lean", choices=["lean", "3b"])
+    ap.add_argument("--omega", type=float, default=0.15)
+    ap.add_argument("--out", default="bt_pair.csv")
     a = ap.parse_args()
     import numpy as np, pandas as pd
     origins = [int(x) for x in a.origins.split(",")]
     t = time.time()
     with ProcessPoolExecutor(a.jobs, initializer=_init) as ex:
-        res = [r for rr in ex.map(run_origin, origins) for r in rr]
+        res = [r for rr in ex.map(run_origin, [(o, a.procedure, a.omega) for o in origins]) for r in rr]
     df = pd.DataFrame(res)
     cat = {o: c for c, v in CATS.items() for o in v}
     df["cat"] = df.origin.map(cat).fillna("other")
     df["max_hedge"] = df[["main", "hedge"]].max(1)
-    df["max_B"] = df[["main", "B"]].max(1)
-    df.to_csv("bt_pair.csv", index=False)
+    pair_main = "main3b" if "main3b" in df else "main"
+    df["max_B"] = df[[pair_main, "B"]].max(1)
+    df.to_csv(a.out, index=False)
+    cols = ["main", "hedge"] + (["main3b"] if pair_main == "main3b" else []) + ["B", "max_hedge", "max_B"]
     pd.set_option("display.width", 220)
     for mode in ("sum5", "5avg"):
         d = df[df.stock == mode]
         print(f"\n== stock {mode}")
-        print(d[["origin", "cat", "main", "hedge", "B", "max_hedge", "max_B", "main_P", "B_P"]].round(1).to_string(index=False))
-        g = d.groupby("cat")[["main", "hedge", "B", "max_hedge", "max_B"]].agg(["mean", "min"]).round(1)
-        print(g.to_string())
-        print("ALL mean:", d[["main", "hedge", "B", "max_hedge", "max_B"]].mean().round(2).to_dict())
-        print("ALL worst:", d[["main", "hedge", "B", "max_hedge", "max_B"]].min().round(2).to_dict())
+        print(d[["origin", "cat"] + cols + ["main_P", "B_P"]].round(1).to_string(index=False))
+        print(d.groupby("cat")[cols].agg(["mean", "min"]).round(1).to_string())
+        print("ALL mean:", d[cols].mean().round(2).to_dict())
+        print("ALL worst:", d[cols].min().round(2).to_dict())
+        loco = {c: (d[d.cat != c].max_B.mean() - d[d.cat != c].max_hedge.mean()) for c in d.cat.unique()}
+        print("max_B - max_hedge, leaving each category out:", {k: round(v, 2) for k, v in loco.items()})
     print(f"\n{time.time() - t:.0f}s")
 
 

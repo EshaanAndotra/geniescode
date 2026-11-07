@@ -5,6 +5,8 @@ Team repo for the Kaggle competition. **Deadline: Sun Nov 8, 12 PM Central.** Se
 **Start here:**
 - [docs/BRIEF.md](docs/BRIEF.md): verified data facts, the signals at week 221, everything tried so far with results, open problems, and ground rules for building.
 - [docs/competition.md](docs/competition.md): the official rules, scoring and simulator.
+- [docs/PHASE2_ITERATION8.md](docs/PHASE2_ITERATION8.md): Phase 2 review and the final picks, `submissions/submission_main_it8.csv` and `submissions/submission_war_it8.csv` (built with `python run_pipeline_p2.py` from `Code Base/pipelining`).
+- [halcyon_phase2/README.md](halcyon_phase2/README.md): a separate, self-contained model package with its own report and two alternative Phase 2 submissions.
 
 ## Data
 
@@ -51,21 +53,28 @@ Since Phase 2, the public weeks are in the data, so public scores no longer pred
 ## Layout
 
 ```
-docs/                    BRIEF.md, competition.md
+docs/                    BRIEF.md, competition.md, PHASE2_ITERATION8.md
 Data/, Data_new/         competition CSVs (Phase 1, Phase 2)
+halcyon_phase2/          self-contained alternative model (own inputs/ copies of Data, Data_new; run_phase2.py)
 submissions/             every file built or uploaded; probes/ = scorer-convention probes
 Code Base/pipelining/
   run_pipeline.py        one command: Models 1 -> 2 -> 3, two final files, checks
+  run_pipeline_p2.py     iteration 8: Model 1 iter6 -> Model 2 iter6 -> Model 3 iter5, final main + war files
+  backtest_phase2.py     iteration 8 backtests (backtests/p2_*.csv)
+  scenarios/             iteration 8 scenario builder and evaluator
   backtest_full.py       whole pipeline on past windows, every score part
   score_local.py         local scorer (with alternative conventions)
   verify_scorer.py       which conventions reproduce the public scores
   validate_submission.py every rejection and team rule, checked before handover or upload
   stress_private.py      hand-built futures for weeks 222-234, scored for both picks
   backtests/             backtest results, one CSV per configuration
-  Model 1/iter4/         current disruption model (iter3 + news story layer)
+  Model 1/iter6/         iteration 8 disruption model (built on iter4)
+  Model 1/iter4/         disruption model (iter3 + news story layer)
   Model 1/iter3/         the same model without news (Model 3's fallback when MODEL1_DIR isn't set)
-  Model 2/iter3/         current price model and landed costs (Eshaan)
-  Model 3/iter3/         current lean ordering plan (main pick)
+  Model 2/iter6/         iteration 8 price model (built on iter3)
+  Model 2/iter3/         price model and landed costs (Eshaan)
+  Model 3/iter5/         iteration 8 ordering plan (built on iter3)
+  Model 3/iter3/         lean ordering plan
   Model 3/iter1/         simulator, scenario futures, LP, hedged preset (hedge pick)
   dq_rules/, sql/, 04_pipeline.py   Databricks data-quality pipeline
 ```

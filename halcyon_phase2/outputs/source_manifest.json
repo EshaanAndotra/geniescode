@@ -1,0 +1,148 @@
+{
+  "tariffs": {
+    "rows": 6240,
+    "columns": [
+      "week",
+      "date",
+      "material",
+      "country",
+      "tariff_rate",
+      "announced_rate",
+      "announced_effective_week"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "6c8363517720db41c8f93deef13d0e23f88584fd70293952728a02213dc5dc03"
+  },
+  "supply_history": {
+    "rows": 6240,
+    "columns": [
+      "week",
+      "date",
+      "material",
+      "country",
+      "capacity_units",
+      "lead_time_weeks",
+      "landed_cost"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "7281442c03d1695f23218bef27128fe2ed6e99f8a34eb1d637c4591d66e3d6bb"
+  },
+  "suppliers": {
+    "rows": 30,
+    "columns": [
+      "material",
+      "country",
+      "country_name",
+      "lane",
+      "base_lead_weeks",
+      "normal_capacity_units",
+      "base_tariff"
+    ],
+    "min_week": null,
+    "max_week": null,
+    "sha256": "c813d2e39fe04c7ce93b35270a2e960a305f017867d2176a646efc8a1cab2334"
+  },
+  "shipping": {
+    "rows": 1040,
+    "columns": [
+      "week",
+      "date",
+      "lane",
+      "container_rate",
+      "transit_days",
+      "congestion_index"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "1f1372446a73139c4fcbc531d0ce7aa354e6679313465dbf1d49b274e5b7eb83"
+  },
+  "sample_submission": {
+    "rows": 260,
+    "columns": [
+      "id",
+      "disruption_prob",
+      "price_forecast",
+      "order_units",
+      "share_KES",
+      "share_VAL",
+      "share_SUN",
+      "share_ORI",
+      "share_HAL",
+      "share_AUR"
+    ],
+    "min_week": null,
+    "max_week": null,
+    "sha256": "689417b52f2cf78808975e03060101adc06eb40bd61ea1d3b88a622c268b1dd7"
+  },
+  "prices": {
+    "rows": 6240,
+    "columns": [
+      "week",
+      "date",
+      "material",
+      "country",
+      "spot_price",
+      "futures_4w"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "35fade4933d9fccbd8e3195a7c04f3b1667a6d44001f9eb2ac58e1a8d1993270"
+  },
+  "outcomes": {
+    "rows": 2080,
+    "columns": [
+      "week",
+      "date",
+      "material",
+      "benchmark_price",
+      "disrupted"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "c9d86e35f27a730d38946ab0b4b24fdf0d8c6bf1c47067faa10d96da410d782f"
+  },
+  "news": {
+    "rows": 4317,
+    "columns": [
+      "article_id",
+      "week",
+      "date",
+      "source",
+      "headline",
+      "body"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "23b99432dd87adb49e2796103da1d155ed4b112e97a14e49959800588dca576f"
+  },
+  "macro": {
+    "rows": 1248,
+    "columns": [
+      "week",
+      "date",
+      "country",
+      "pmi",
+      "fx_rate",
+      "cpi_yoy",
+      "policy_rate",
+      "tension_index"
+    ],
+    "min_week": 1,
+    "max_week": 208,
+    "sha256": "7d08b20982491e890b5e209e110bf55b7bc6beb238daee653149efda0e9b562c"
+  },
+  "demand": {
+    "rows": 2340,
+    "columns": [
+      "week",
+      "date",
+      "material",
+      "demand_units"
+    ],
+    "min_week": 1,
+    "max_week": 234,
+    "sha256": "33e31a840a46b5d8fa7dd0a8964dd0db28971ceb8f29e7d7f01b435417ff6d5f"
+  }
+}

@@ -1,0 +1,37 @@
+week,type,stage,countries,lanes,materials,headline,article_id
+207,supply,early,"('KES',)",(),"('lithium',)",Kestria lithium producers flag maintenance delays,A04272
+207,strike,early,(),"('SOUTH',)",(),Congestion builds at ports on the Southern route,A04284
+207,ongoing,resolved,(),"('NORTH',)",(),Calm returns near the Northern Sea route,A04290
+208,supply,early,"('KES',)",(),"('lithium',)",Kestria lithium producers flag maintenance delays,A04298
+208,strike,early,(),"('SOUTH',)",(),Port labor talks drag on for the Southern route,A04306
+209,supply,early,"('KES',)",(),"('lithium',)",Workers at Kestria lithium sites threaten walkout,A04319
+209,export,early,"('VAL',)",(),"('lithium',)",Valdmar lithium exporters report slower license approvals,A04320
+209,strike,early,(),"('SOUTH',)",(),Port labor talks drag on for the Southern route,A04334
+210,supply,early,"('KES',)",(),"('lithium',)",Kestria lithium producers flag maintenance delays,A04344
+210,strike,late,(),"('SOUTH',)",(),Union sets strike date for Southern route ports,A04348
+210,export,late,"('VAL',)",(),"('lithium',)",Valdmar signals lithium export curbs within weeks,A04364
+211,strike,late,(),"('SOUTH',)",(),Shippers rush cargo ahead of Southern route strike,A04372
+211,supply,late,"('KES',)",(),"('lithium',)",Kestria rations water to lithium producers,A04384
+211,strike,late,(),"('SOUTH',)",(),"Strike on the Southern route looks likely, mediators say",A04388
+212,supply,active,"('KES',)",(),"('lithium',)",Accident halts major Kestria lithium site,A04396
+212,strike,active,(),"('SOUTH',)",(),Strike shuts ports along the Southern route,A04400
+213,ongoing,active,(),"('SOUTH',)",(),Southern route disruption drags on,A04426
+213,supply,active,"('KES',)",(),"('lithium',)",Accident halts major Kestria lithium site,A04430
+214,supply,late,"('KES',)",(),"('lithium',)",Kestria lithium output forecast cut sharply,A04435
+215,ongoing,resolved,(),"('SOUTH',)",(),Traffic returns to the Southern route,A04464
+215,supply,active,"('KES',)",(),"('lithium',)",Kestria lithium production falls amid shortage,A04467
+217,ongoing,active,"('KES',)",(),"('lithium',)",Kestria lithium disruption continues,A04503
+218,ongoing,active,"('KES',)",(),"('lithium',)",Kestria lithium disruption continues,A04511
+218,tariff,early,"('KES',)",(),"('aluminum',)",Importers watch Kestria trade dispute closely,A04517
+219,export,early,"('VAL',)",(),"('cobalt',)",Valdmar ministry calls cobalt a strategic priority,A04537
+220,export,early,"('VAL',)",(),"('cobalt',)",Valdmar cobalt exporters report slower license approvals,A04551
+220,tariff,early,"('KES',)",(),"('aluminum',)",Importers watch Kestria trade dispute closely,A04562
+220,conflict,early,"('KES',)","('MERROW',)",(),Tensions rise between Kestria and neighbors,A04563
+220,export,early,"('KES',)",(),"('rare_earths',)",Lawmakers in Kestria debate limits on raw material exports,A04570
+220,ongoing,active,"('KES',)",(),"('lithium',)",No quick fix for Kestria lithium supply problems,A04573
+221,conflict,early,"('KES',)","('MERROW',)",(),Tensions rise between Kestria and neighbors,A04582
+221,tariff,late,"('KES',)",(),"('aluminum',)",Aurelia confirms new duties on Kestria aluminum,A04586
+221,export,early,"('VAL',)",(),"('cobalt',)",Valdmar ministry calls cobalt a strategic priority,A04590
+221,tariff,late,"('KES',)",(),"('aluminum',)",Tariff schedule on Kestria aluminum published,A04596
+221,ongoing,resolved,"('KES',)",(),"('lithium',)",Disruption in Kestria lithium supply eases,A04601
+221,export,early,"('KES',)",(),"('rare_earths',)",Lawmakers in Kestria debate limits on raw material exports,A04602

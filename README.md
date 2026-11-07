@@ -33,6 +33,7 @@ Both share the same `disruption_prob` and `price_forecast`. Without `--tag`, the
 | `python3 backtest_full.py --data ../../Data_new --tag NAME [--origins 52:209:3]` | Plans past windows the way the private window is planned (from the week before, earlier data only) and scores all five parts. Writes `backtests/bt_NAME.csv`. About 4 minutes on 8 cores |
 | `python3 score_local.py ../../submissions/FILE.csv --data ../../Data_new` | Scores a file on weeks 209-221, part by part |
 | `python3 verify_scorer.py --data ../../Data_new` | Tries the unconfirmed scorer conventions and ranks them by how well they reproduce known public scores |
+| `python3 validate_submission.py ../../submissions/FILE.csv [...] --data ../../Data_new` | Checks files against every rejection rule and team rule (ids, blanks, ranges, whole orders, shares). Lists every problem, and exits 1 if any file fails. Run it on every file before handing it over or uploading |
 
 **Notebook route (Databricks):** `Model 1/iter3/model1_run.ipynb` → `Model 2/iter3/model2_run.ipynb` → `Model 3/iter2/model3_run.ipynb`. This route uses Model 1 iter3 (no news layer) and Eshaan's Model 3.
 

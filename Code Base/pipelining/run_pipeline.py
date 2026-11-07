@@ -116,7 +116,7 @@ def main():
     ap.add_argument("--skip-checks", action="store_true")
     ap.add_argument("--model1-iter", default="iter4", choices=["iter3", "iter4"],
                     help="iter4 (default) adds the news story layer, +2.96 on the public LB vs iter3; "
-                         "see README.md")
+                         "see docs/BRIEF.md, section 5")
     ap.add_argument("--tag", default="", help="suffix for output file names, e.g. _wild")
     ap.add_argument("--sharpen", type=float, default=SHARPEN_K,
                     help="Model 1 sharpening k (1 = off); needs Model 1 iter4")

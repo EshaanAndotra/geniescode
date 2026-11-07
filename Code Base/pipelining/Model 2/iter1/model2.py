@@ -14,16 +14,15 @@ is a simple model that reliably beats it.
 Forecasters - each predicts the % change from the last known spot, per supplier:
   carry-forward   no change from today's price (the 0-skill baseline)
   futures-implied spot_now * (futures_4w / spot_now) ** (min(h, 4) / 4), flat after
-  mean-reversion  drift back toward the trailing 26-week average (half-life 8 w)
-  boosted trees   v3, off by default: learns the % change from the futures
-                  premium, momentum, the Model 1 disruption probability and the
-                  tariff schedule, with absolute-error loss; kept only if it
-                  beats the blend without it
+  mean-reversion  drift back toward the trailing 52-week average (half-life 13 w)
 Blend weights are fitted separately for horizons 1-4, 5-8 and 9-13 on the
 rolling backtest, then shrunk toward carry-forward when the evidence is weak
 (a bucket needs 10%+ relative MAPE gain over carry-forward before its blend
-is trusted at all). The backtest reports the blend with leave-one-origin-out
-weights so the skill is honest.
+is trusted at all). Weight fitting uses rolling origins every 4 weeks from
+week 104 and, by default, one weight set per material (shrunk halfway toward
+the shared bucket weights), so trend materials like lithium can lean on
+carry-forward without distorting the rest. The backtest reports the blend
+with leave-one-origin-out weights so the skill is honest.
 
 Shock jump rule: the forecast is multiplied by a fitted jump only in weeks
 where Model 1's P(disruption) for that material is above 0.5. MAPE targets the
@@ -64,10 +63,9 @@ Quick use:
 Command line:
     python model2.py --data DATA_DIR --backtest --ladder --futures-check \
         --submission sample_submission.csv --out submission_model2.csv \
-        --landed-out landed_model2.csv [--trees] [--model1-dir DIR]
+        --landed-out landed_model2.csv [--model1-dir DIR]
 
-Requires: numpy, pandas; scipy + scikit-learn for the blend optimizer and the
-optional boosted trees.
+Requires: numpy, pandas; scipy for the blend optimizer.
 """
 from __future__ import annotations
 
@@ -82,23 +80,25 @@ import numpy as np
 import pandas as pd
 
 __all__ = [
-    "Config", "PricePanels", "PriceBacktestResult", "TreeMember", "load_data",
+    "Config", "PricePanels", "PriceBacktestResult", "load_data",
     "backtest", "ladder", "fill_submission", "landed_fit", "landed_forecast",
     "futures_check", "futures_premium_scan", "fit_jump", "import_model1",
-    "mape", "mape_skill", "forecast", "fit_weights",
+    "mape", "mape_skill", "forecast", "fit_weights", "fit_weights_mat",
 ]
 
 # ----------------------------------------------------------------------------- constants
 HORIZON = 13                         # forecast weeks per window
 BUCKETS = ((1, 4), (5, 8), (9, 13))   # horizon buckets, each with its own blend weights
-MEAN_WINDOW = 26                     # mean-reversion anchor
-REVERT_HALFLIFE = 8.0                # weeks to close half the gap to the anchor
+MEAN_WINDOW = 52                     # mean-reversion anchor (52w beat 13/26 in the grid test)
+REVERT_HALFLIFE = 13.0               # weeks to close half the gap to the anchor (13 beat 4/8)
+WEIGHT_ORIGINS_START = 104           # first weight-fit origin with a full 52w mean-reversion history
+WEIGHT_ORIGINS_STEP = 4              # origin cadence for blend weight fitting
 JUMP_P = 0.5                         # add a shock jump only above this P(disruption)
 PREM_SIGNAL = 0.06                   # futures premium above this = market pricing something in
 SHRINK_GAIN = 0.10                   # relative MAPE gain a bucket needs before its blend is trusted
 DOC_ORIGINS = (156, 169, 182, 195)    # same origins as Model 1; 208 joins after Phase 2
 SUBMISSION_WINDOWS = ((209, 221), (222, 234))
-MEMBERS = ("carry", "futures", "meanrev", "trees")
+MEMBERS = ("carry", "futures", "meanrev")
 FILES = ("prices", "supply_history", "shipping", "tariffs", "suppliers")
 OPTIONAL_FILES = ("outcomes", "macro")  # outcomes: jump fit + Model 1 hook; macro: Model 1 hook
 
@@ -112,7 +112,8 @@ class Config:
     shrink_gain: float = SHRINK_GAIN
     use_meanrev: bool = True
     use_jump: bool = True
-    use_trees: bool = False           # v3: only if it beats the blend without it
+    per_material_weights: bool = True   # one weight set per material, shrunk toward the bucket weights
+    weight_shrink: float = 0.5           # share of the shared bucket weights in the per-material mix
 
 
 # ----------------------------------------------------------------------------- loading
@@ -324,6 +325,18 @@ def fit_weights(rows, shrink_gain=SHRINK_GAIN, members=None):
     return weights, pd.DataFrame(diag)
 
 
+def fit_weights_mat(rows, shrink_gain=SHRINK_GAIN, members=None, lam=0.5):
+    """One weight set per material, each shrunk toward the shared bucket
+    weights by `lam` (lam=1 -> the shared bucket weights for every material).
+    Materials the members disagree about (lithium trends, so mean reversion
+    hurts it) get their own evidence without distorting the other materials."""
+    glob = fit_weights(rows, shrink_gain, members)[0]
+    members = members or [c for c in MEMBERS if c in rows.columns]
+    return {m: [lam * g + (1.0 - lam) * w
+                for g, w in zip(glob, fit_weights(d, shrink_gain, members)[0])]
+            for m, d in rows.groupby("material")}
+
+
 # ----------------------------------------------------------------------------- jump fit
 def fit_jump(panels, t_end=None):
     """Median spot move in the first two weeks of a disruption, per material,
@@ -400,108 +413,8 @@ def model1_probs(panels, origin, H, model1_dir=None):
     return {(int(w), mm): float(p) for w, mm, p in zip(pred.week, pred.material, pred.disruption_prob)}
 
 
-# ----------------------------------------------------------------------------- v3 trees
-class TreeMember:
-    """v3: boosted trees on scale-free features, absolute-error loss. Learns the
-    % change from the last spot from the futures premium, momentum, the Model 1
-    disruption probability and the tariff schedule. Off by default; keep only if
-    it beats the blend without it."""
-
-    def __init__(self, n_estimators=200, max_depth=3, learning_rate=0.05):
-        from sklearn.ensemble import GradientBoostingRegressor
-        self.params = dict(n_estimators=n_estimators, max_depth=max_depth,
-                           learning_rate=learning_rate, loss="absolute_error", random_state=0)
-        self.clf = GradientBoostingRegressor(**self.params)
-        self.with_prob = False
-
-    @staticmethod
-    def _origin_feats(panels, t0):
-        spot = panels.spot_ff[:, t0]
-        safe = np.maximum(spot, 1e-9)
-        ok = np.isfinite(spot) & (spot > 0)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            prem = np.where(ok, panels.fut_ff[:, t0] / safe - 1.0, 0.0)
-
-            def mom(lag):
-                if t0 < lag:
-                    return np.zeros(len(spot))
-                m = spot / panels.spot_ff[:, t0 - lag] - 1.0
-                return np.where(ok & np.isfinite(m), m, 0.0)
-
-            dev = np.where(ok, panels.mean26[:, t0] / safe - 1.0, 0.0)
-            if t0 >= 1:
-                cc = panels.container_ff[panels.sup_lane, t0] / panels.container_ff[panels.sup_lane, t0 - 1] - 1.0
-                cong_chg = np.where(np.isfinite(cc), cc, 0.0)
-            else:
-                cong_chg = np.zeros(len(spot))
-        pend = np.nan_to_num(panels.ann_eff_ff[:, t0], nan=0.0)
-        pend = np.where(np.isnan(panels.ann_rate_ff[:, t0]) | (pend <= panels.weeks[t0]), 0.0,
-                        np.clip(pend - panels.weeks[t0], 0.0, 13.0))
-        F = np.column_stack([np.nan_to_num(prem), np.nan_to_num(mom(1)), np.nan_to_num(mom(4)),
-                             np.nan_to_num(mom(13)), np.nan_to_num(dev), pend, np.nan_to_num(cong_chg)])
-        return F, ok
-
-    def fit(self, panels, origins, probs=None):
-        """origins: training origins (their target weeks must be known at test
-        time). probs: {origin: {(week, material): p}} from Model 1, or None."""
-        X, y = [], []
-        mats = np.asarray(panels.materials)
-        self.with_prob = bool(probs) and any(probs.get(o) for o in origins)
-        for o in origins:
-            t0 = panels.idx(o)
-            F, ok0 = self._origin_feats(panels, t0)
-            spot = panels.spot_ff[:, t0]
-            pr = (probs or {}).get(o) or {}
-            for h in range(1, panels.cfg.horizon + 1):
-                t = t0 + h
-                if t >= panels.W:
-                    break
-                tgt = panels.spot_ff[:, t] / np.maximum(spot, 1e-9) - 1.0
-                ok = ok0 & np.isfinite(tgt)
-                if not ok.any():
-                    continue
-                pcol = np.array([pr.get((panels.week(t), mats[panels.sup_mat[u]]), 0.0) for u in range(len(spot))])
-                cols = [F[ok], np.full(int(ok.sum()), float(h))]
-                if self.with_prob:
-                    cols.append(pcol[ok])
-                X.append(np.column_stack(cols))
-                y.append(tgt[ok])
-        self.clf.fit(np.vstack(X), np.concatenate(y))
-        return self
-
-    def changes(self, panels, t0, H, probs=None):
-        """[U, H] % change from the origin spot."""
-        F, _ = self._origin_feats(panels, t0)
-        U = F.shape[0]
-        mats = np.asarray(panels.materials)
-        origin = panels.week(t0)
-        out = np.zeros((U, H))
-        for h in range(1, H + 1):
-            cols = [F, np.full(U, float(h))]
-            if self.with_prob:
-                pcol = np.array([((probs or {}).get((origin + h, mats[panels.sup_mat[u]])) or 0.0)
-                                 for u in range(U)])
-                cols.append(pcol)
-            out[:, h - 1] = self.clf.predict(np.column_stack(cols))
-        return out
-
-
-def _fit_tree(panels, T, cfg, model1_dir):
-    """Fit the v3 trees on origins strictly before T (targets within T)."""
-    train = [o for o in range(40, T - cfg.horizon, 4) if o > panels.first_week]
-    if len(train) < 5:
-        return None
-    probs = {o: model1_probs(panels, o, cfg.horizon, model1_dir) for o in train}
-    probs = {o: p for o, p in probs.items() if p is not None}
-    try:
-        return TreeMember().fit(panels, train, probs or None)
-    except Exception as e:
-        warnings.warn(f"trees skipped at origin {T}: {e}")
-        return None
-
-
 # ----------------------------------------------------------------------------- backtest rows
-def _member_rows(panels, origins, config=None, model1_dir=None, use_trees=False, verbose=False):
+def _member_rows(panels, origins, config=None, model1_dir=None, verbose=False):
     """Backtest rows: one per material-week with each member's benchmark price,
     the actual, the Model 1 probability (if available) and the jump multiplier."""
     cfg = config or panels.cfg
@@ -517,10 +430,6 @@ def _member_rows(panels, origins, config=None, model1_dir=None, use_trees=False,
         jump = fit_jump(panels, t_end=t0) if cfg.use_jump else None
         if cfg.use_jump and (probs is None or jump is None):
             warnings.warn(f"origin {T}: Model 1 or outcomes unavailable - shock jump skipped")
-        if use_trees:
-            tree = _fit_tree(panels, T, cfg, model1_dir)
-            if tree is not None:
-                prices["trees"] = _bench_from_chg(panels, tree.changes(panels, t0, H, probs), t0)
         n_rows_T = 0
         for mi, m in enumerate(panels.materials):
             base = panels.bench[mi, t0]
@@ -548,7 +457,7 @@ def _member_rows(panels, origins, config=None, model1_dir=None, use_trees=False,
 class PriceBacktestResult:
     def __init__(self, rows, weights, members, weight_diag):
         self.rows = rows
-        self.weights = weights      # full-fit weights (all origins)
+        self.weights = weights      # full-fit weights: [bucket] or {material: [bucket]}
         self.members = members
         self.weight_diag = weight_diag
 
@@ -581,17 +490,15 @@ class PriceBacktestResult:
 
 
 # ----------------------------------------------------------------------------- backtest
-def backtest(panels, origins=None, config=None, model1_dir=None, use_trees=None,
+def backtest(panels, origins=None, config=None, model1_dir=None,
              verbose=False, **overrides):
     """Rolling-origin backtest on the material-week benchmark price. Same origins
     as Model 1 by default (156, 169, 182, 195; 208 joins once Phase 2 data lands).
     The blend column uses leave-one-origin-out weights: each origin's forecast
     is blended with weights fitted on the other origins."""
     cfg = replace(config or panels.cfg, **overrides)
-    if use_trees is None:
-        use_trees = cfg.use_trees
     origins = list(origins) if origins is not None else [o for o in DOC_ORIGINS + (208,) if o < panels.last_week]
-    rows = _member_rows(panels, origins, cfg, model1_dir, use_trees, verbose)
+    rows = _member_rows(panels, origins, cfg, model1_dir, verbose)
     if rows.empty:
         raise ValueError("no backtest rows: check origins vs the data weeks")
     members = [c for c in MEMBERS if c in rows.columns]
@@ -599,27 +506,31 @@ def backtest(panels, origins=None, config=None, model1_dir=None, use_trees=None,
     rows["blend"] = np.nan
     per_origin_diag = []
     for T in rows.origin.unique():
-        w, d = fit_weights(rows[rows.origin != T], cfg.shrink_gain, members)
+        tr = rows[rows.origin != T]
+        w, d = fit_weights(tr, cfg.shrink_gain, members)
         per_origin_diag.append(d.assign(origin=T))
+        wmat = (fit_weights_mat(tr, cfg.shrink_gain, members, cfg.weight_shrink)
+                if cfg.per_material_weights else None)
         te = rows[rows.origin == T]
         for i in te.index:
             b = _bucket(int(rows.at[i, "h"]))
-            rows.at[i, "blend"] = float(sum(w[b][j] * rows.at[i, c] for j, c in enumerate(members)))
+            w_b = wmat[rows.at[i, "material"]][b] if wmat is not None else w[b]
+            rows.at[i, "blend"] = float(sum(w_b[j] * rows.at[i, c] for j, c in enumerate(members)))
     rows["blend_jump"] = rows["blend"] * rows["jump_mult"]
 
-    w_full, _ = fit_weights(rows, cfg.shrink_gain, members)
+    w_full = (fit_weights_mat(rows, cfg.shrink_gain, members, cfg.weight_shrink)
+              if cfg.per_material_weights
+              else fit_weights(rows, cfg.shrink_gain, members)[0])
     return PriceBacktestResult(rows=rows, weights=w_full, members=members,
                                weight_diag=pd.concat(per_origin_diag, ignore_index=True))
 
 
 def ladder(panels, **kw):
     """The spec's build order as MAPE skill: v0 carry-forward, v1 futures-implied,
-    v2 blend, v2 + shock jump (v3 trees only when use_trees=True)."""
+    v2 blend, v2 + shock jump."""
     bt = backtest(panels, **kw)
     cols = [("v0 carry-forward", "carry"), ("v1 futures-implied", "futures"),
             ("v2 blend", "blend"), ("v2 + shock jump", "blend_jump")]
-    if "trees" in bt.rows:
-        cols.append(("v3 + trees", "trees"))
     out = {}
     for name, c in cols:
         bb = bt.by_bucket(c)
@@ -697,26 +608,30 @@ def landed_fit(panels):
 
 
 # ----------------------------------------------------------------------------- forecast
-def forecast(panels, origin, H, weights, config=None, probs=None, jump=None, tree=None):
+def forecast(panels, origin, H, weights, config=None, probs=None, jump=None):
     """Blend the members at `origin` for h = 1..H and apply the shock jump.
     h > HORIZON keeps the last bucket's weights (members extend naturally:
     futures flat after 4 weeks, mean reversion keeps converging).
-    Returns (supplier_df, material_df)."""
+    `weights`: shared bucket weights (list) or the per-material dict from
+    fit_weights_mat. Returns (supplier_df, material_df)."""
     cfg = config or panels.cfg
     t0 = panels.idx(origin)
     H = int(H)
     chg = member_changes(panels, t0, H, use_meanrev=cfg.use_meanrev)
-    if tree is not None:
-        chg["trees"] = tree.changes(panels, t0, H, probs)
     names = [c for c in MEMBERS if c in chg]
 
     base = panels.spot_ff[:, t0]
     U = len(panels.suppliers)
+    mats = np.asarray(panels.materials)
     sup = np.zeros((U, H))
     for h in range(1, H + 1):
-        w = weights[_bucket(h)]
+        b = _bucket(h)
         for j, n in enumerate(names):
-            sup[:, h - 1] += w[j] * base * (1.0 + chg[n][:, h - 1])
+            if isinstance(weights, dict):          # per-material: {material: [bucket]}
+                wu = np.array([weights[mats[panels.sup_mat[u]]][b][j] for u in range(U)])
+            else:                                  # shared: [bucket]
+                wu = np.full(U, float(weights[b][j]))
+            sup[:, h - 1] += wu * base * (1.0 + chg[n][:, h - 1])
 
     # shock jump: per material-week, only where Model 1's P(disruption) > jump_p
     jmult = np.ones((len(panels.materials), H))
@@ -747,13 +662,16 @@ def forecast(panels, origin, H, weights, config=None, probs=None, jump=None, tre
 
 
 # ----------------------------------------------------------------------------- submission
-def _prepare(panels, windows, cfg, use_trees, model1_dir):
-    """Fit blend weights on the Model-1-origin backtest and forecast every window.
+def _prepare(panels, windows, cfg, model1_dir):
+    """Fit blend weights on the rolling-origin backtest and forecast every window.
     Returns (weights, fits, [per-window frames])."""
-    rows = _member_rows(panels, [o for o in DOC_ORIGINS + (208,) if o < panels.last_week],
-                        cfg, model1_dir, use_trees)
+    weight_origins = [o for o in range(WEIGHT_ORIGINS_START, panels.last_week, WEIGHT_ORIGINS_STEP)
+                      if o > panels.first_week]
+    rows = _member_rows(panels, weight_origins, cfg, model1_dir)
     members = [c for c in MEMBERS if c in rows.columns]
-    weights, _ = fit_weights(rows, cfg.shrink_gain, members)
+    weights = (fit_weights_mat(rows, cfg.shrink_gain, members, cfg.weight_shrink)
+               if cfg.per_material_weights
+               else fit_weights(rows, cfg.shrink_gain, members)[0])
     fits = landed_fit(panels).set_index(["material", "country"])
     out = []
     for start, end in windows:
@@ -763,27 +681,24 @@ def _prepare(panels, windows, cfg, use_trees, model1_dir):
         jump = fit_jump(panels, t_end=panels.idx(origin)) if cfg.use_jump else None
         if cfg.use_jump and (probs is None or jump is None):
             warnings.warn(f"window {start}-{end}: Model 1 or outcomes unavailable - shock jump skipped")
-        tree = _fit_tree(panels, origin, cfg, model1_dir) if use_trees else None
-        sup_df, mat_df = forecast(panels, origin, H, weights, cfg, probs, jump, tree)
+        sup_df, mat_df = forecast(panels, origin, H, weights, cfg, probs, jump)
         out.append(dict(start=start, end=end, origin=origin, H=H,
                         sup_df=sup_df, mat_df=mat_df, fits=fits))
     return weights, out
 
 
-def fill_submission(panels, sample, windows=SUBMISSION_WINDOWS, config=None, use_trees=None,
+def fill_submission(panels, sample, windows=SUBMISSION_WINDOWS, config=None,
                     model1_dir=None, out_path=None):
     """Fill price_forecast in a submission file and build the per-supplier landed
     cost forecasts. Each window is forecast from origin = min(window start - 1,
     last data week), like Model 1's fill_submission; other columns are untouched.
     Returns (submission, landed_costs DataFrame)."""
     cfg = replace(config or panels.cfg, use_jump=(config or panels.cfg).use_jump)
-    if use_trees is None:
-        use_trees = cfg.use_trees
     sub = pd.read_csv(sample) if isinstance(sample, str) else sample.copy()
     parts = sub.id.str.extract(r"^w(\d+)_(.+)$")
     sub_week, sub_mat = parts[0].astype(int), parts[1]
 
-    _, windows_out = _prepare(panels, windows, cfg, use_trees, model1_dir)
+    _, windows_out = _prepare(panels, windows, cfg, model1_dir)
     landed_rows = []
     for w in windows_out:
         origin, H, sup_df = w["origin"], w["H"], w["sup_df"]
@@ -847,7 +762,6 @@ def _main():
     ap.add_argument("--out", default="submission_model2.csv")
     ap.add_argument("--landed-out", help="write per-supplier landed cost forecasts for Model 3")
     ap.add_argument("--model1-dir", help="folder with Model 1's model1.py (for the jump rule)")
-    ap.add_argument("--trees", action="store_true", help="v3 boosted trees")
     args = ap.parse_args()
 
     panels = PricePanels(load_data(args.data))
@@ -858,15 +772,15 @@ def _main():
         print("futures premium scan (Phase 2):\n", futures_premium_scan(panels).head(20).to_string())
     if args.ladder:
         pd.set_option("display.width", 200)
-        print("MAPE skill ladder:\n", ladder(panels, use_trees=args.trees,
-                                             model1_dir=args.model1_dir).round(3).to_string())
+        print("MAPE skill ladder:\n", ladder(panels,
+                                            model1_dir=args.model1_dir).round(3).to_string())
     if args.backtest:
-        bt = backtest(panels, use_trees=args.trees, model1_dir=args.model1_dir)
+        bt = backtest(panels, model1_dir=args.model1_dir)
         print("summary:\n", bt.summary().round(4).to_string())
         print("by horizon bucket:\n", bt.by_bucket().round(4).to_string())
         print("by material:\n", bt.by_material().round(4).to_string())
     if args.submission:
-        sub, landed = fill_submission(panels, args.submission, use_trees=args.trees,
+        sub, landed = fill_submission(panels, args.submission,
                                       model1_dir=args.model1_dir, out_path=args.out)
         print(f"wrote {args.out} ({len(sub)} rows)")
         if args.landed_out:

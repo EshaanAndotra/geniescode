@@ -2,7 +2,7 @@
 run_pipeline.py - build the final submissions from the competition data in one go.
 
   Model 1 (iter4)  disruption_prob            P(material disrupted), per week (iter3 + news stories)
-  Model 2 (iter2)  price_forecast             benchmark price (structural shock-state method)
+  Model 2 (iter3)  price_forecast             benchmark price (calm mean reversion + shock on/off mix)
   Model 3 (iter1)  order_units + share_*      stochastic LP on Model 1's hazards
 Every window is forecast from min(window start - 1, last week in the data): with Phase 2 data
 (weeks 1-221) the private window 222-234 is planned from week 221.
@@ -10,7 +10,7 @@ Every window is forecast from min(window start - 1, last week in the data): with
 Writes to --out-dir:
   submission_moderate.csv     main pick (Model 3 default settings)
   submission_aggressive.csv   hedge pick (adds stress futures)
-  landed_costs.csv            Model 2's per-supplier landed cost forecasts (for inspection)
+  landed_costs.csv            Model 2's per-supplier landed cost forecasts (for inspection, not uploaded)
 and prints checks worth reading before uploading: data weeks, shocks active at the last week,
 signals past their training range, futures premiums, and the order volume of each plan.
 
@@ -32,7 +32,7 @@ import pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__))
 PATHS = {
     "model1": os.path.join(HERE, "Model 1", "iter4", "model1.py"),
-    "model2": os.path.join(HERE, "Model 2", "iter2", "model2.py"),
+    "model2": os.path.join(HERE, "Model 2", "iter3", "model2.py"),
     "model3": os.path.join(HERE, "Model 3", "iter1", "model3.py"),
 }
 WINDOWS = ((209, 221), (222, 234))
@@ -94,11 +94,13 @@ def checks(m1, m2, data, last_week):
         ext = ext[ext.exceeds]
         print(f"[signals in weeks 209-{P.last_week} above their weeks 1-208 maximum] "
               + ("none" if ext.empty else "\n" + ext.head(15).to_string(index=False)))
-    pp = m2.PricePanels(data)
-    scan = m2.futures_premium_scan(pp, train_end=min(208, last_week), recent_start=min(209, last_week))
-    hot = scan[scan["last"] > 0.03]
-    print("[futures premium > 3% at the last week (single-supplier shock warning, 2-3 weeks ahead)] "
-          + ("none" if hot.empty else "\n" + hot[["material", "country", "last", "train_max"]].round(3).to_string(index=False)))
+    prem = P.sup_feat["prem"]
+    hot = pd.DataFrame({"material": P.suppliers.material, "country": P.suppliers.country,
+                        "premium_now": prem[:, -1], "premium_last_week": prem[:, -2]})
+    hot = hot[hot.premium_now > 0.03].sort_values("premium_now", ascending=False)
+    print("[own futures premium > 3% at the last week (real warnings climb to 7-25% within 1-2 weeks; "
+          "one-week 4% spikes were mostly false alarms)] "
+          + ("none" if hot.empty else "\n" + hot.round(3).to_string(index=False)))
 
 
 def main():
@@ -108,7 +110,7 @@ def main():
     ap.add_argument("--skip-checks", action="store_true")
     ap.add_argument("--model1-iter", default="iter4", choices=["iter3", "iter4"],
                     help="iter4 (default) adds the news story layer, +2.96 on the public LB vs iter3; "
-                         "see WILD_CHANGES.md")
+                         "see README.md")
     ap.add_argument("--tag", default="", help="suffix for output file names, e.g. _wild")
     args = ap.parse_args()
     PATHS["model1"] = os.path.join(HERE, "Model 1", args.model1_iter, "model1.py")
@@ -132,8 +134,9 @@ def main():
     print("\n[1/3] Model 1: disruption_prob")
     sub = m1.fill_submission(m1.Panels(data), sample, windows=WINDOWS)
     print("[2/3] Model 2: price_forecast + landed costs")
-    sub, landed = m2.fill_submission(m2.PricePanels(m2.load_data(data_dir)), sub, windows=WINDOWS)
-    landed.to_csv(os.path.join(args.out_dir, f"landed_costs{args.tag}.csv"), index=False)
+    pdata = m2.PriceData(data)
+    sub = m2.fill_submission(pdata, sub, windows=WINDOWS)
+    m2.export_for_model3(pdata, windows=WINDOWS, out_path=os.path.join(args.out_dir, f"landed_costs{args.tag}.csv"))
 
     print("[3/3] Model 3: order_units + shares (moderate and aggressive)")
     dem = data["demand"]

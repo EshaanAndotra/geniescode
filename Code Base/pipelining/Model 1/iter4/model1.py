@@ -5,7 +5,7 @@ iter4 change: news_stories.py turns headline story chains (shortage, export ban,
 sanctions warnings and their rumor endings) into onset timing for each supplier, lane and country,
 estimated only from stories already closed at the origin. For a calm source with an open story,
 first-onset curves combine as F = 1 - (1 - F_model)(1 - F_news), then go through the same duration
-curves. Config(use_news_stories=False) gives back iter3 exactly. See WILD_CHANGES.md.
+curves. Config(use_news_stories=False) gives back iter3 exactly. See README.md, section 5.
 
 
 Fills `disruption_prob`: P(material disrupted at week T+h), where disrupted means at least

@@ -8,7 +8,9 @@ This brief gives facts, evidence and open problems. **It doesn't prescribe an ar
 
 ## 0. Status (Sat Nov 7, night): final files built
 
-**Recommended final selection** (both validated): `submissions/final_main.csv` + `submissions/final_hedge_pshift.csv`. Backup hedge: `final_hedge.csv`. Committed in 859ebf0 on alan/best-model. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
+**Final selection (user decision, Sat night):** `submissions/final_main.csv` (stable; public 69.07) + `submissions/final_hailmary.csv` (= `cand_hailmary.csv`). Backups: `final_hedge_pshift.csv`, then `final_hedge.csv`. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
+
+**Why the hail mary replaced hedge_pshift:** both earlier finals kept about 45-55% KES+SUN share, so a Merrow closure hit both. The hail mary is planned on a committed week-221 scenario: Merrow closure starting wk 222-225 for 4-8 wk, Valdmar cobalt curb from about wk 223, the KES 35% tariff from wk 224, and possible KES rare earth limits. Merrow-lane P raised to about 0.8; weeks 209-221 identical to main. Week-221 futures, 300 per group, weights calm .35 / Merrow .30 / cobalt-only .20 / KES-broad .15: E[max(main, X)] = **69.60 vs 68.44** for hedge_pshift. Merrow group 74.72→78.80; other groups −0.07 combined. Caveat: the Merrow group is drawn from the hail mary's own scenario family. History (backtest_pair): 58.32 vs 58.37, worst window 33.3 unchanged, Kestria +0.9 / Merrow −0.9. Weeks 222-234 shares: KES+SUN 0.44 (main 0.48). Guidance: K-adaptability / solution portfolios (pick the pair jointly, anti-correlated) and Lichtendahl & Winkler 2007 (competition rewards extremized forecasts).
 
 **How the finals are built:**
 - Model 1 iter5: `Config(sharpen_k=1.5, premium_mix=0.5, tariff_floor=0.95)`.
@@ -17,7 +19,7 @@ This brief gives facts, evidence and open problems. **It doesn't prescribe an ar
 - Hedge: Model 3 iter1 AGGRESSIVE (sum5), n_scen 1000, with disruption_prob floored at 0.50 on the 8 KES/SUN materials for weeks 222-234.
 - `run_pipeline.py` still points at the older modules; the finals were built with a wrapper (the builder's `portfolio/` scripts).
 
-**Historical evidence for the pair** (`portfolio/backtest_pair.py`, 18 real past windows, sum5): max(main, hedge) = 55.57, and **57.11** with the hedge P floor. Worst window about 23. Every alternative second file tested scored lower on history (section 5).
+**Historical evidence for the pair** (`portfolio/backtest_pair.py`, 18 real past windows, sum5): max(main, hedge) = 55.57, and **57.11** with the hedge P floor. Worst window about 23. Every alternative second file tested scored lower on history (section 5). Those runs planned main at n200 with "min" stock; with main built like `final_main` (sum5, n1000) the pair scores **58.37** (seeds 58.32-58.37), worst window 30-33.
 
 **Settled during the session:**
 1. The scorer's starting stock is sum5 (public-score delta test).
@@ -26,7 +28,7 @@ This brief gives facts, evidence and open problems. **It doesn't prescribe an ar
 4. Calibrated forecast changes (iter5) help the P columns. Order futures stay early-biased on purpose.
 
 **Ideas left, all small or risky; don't restart exploration:**
-- (a) Main at n_scen 2000 with stratified rare lane events, so the Atlantic/South closure exposure is stable: small, about 0.5.
+- (a) DONE, no gain: main at n2000 with Atlantic/South stratified scores 58.39 vs 58.37 at n1000, inside the ±0.05 seed spread. P columns identical; order totals move ≤3.5%. Kept `final_main`. Candidate is `submissions/cand_main_n2000.csv`; Model 3 iter4 has a `strat_lanes` flag, off by default.
 - (b) Per-lane calm base rate (Merrow realized 0.197 vs generator 0.062 per window) in the plan's futures. Untested for orders and could move both files: only with a backtest_pair check.
 - (c) A source-specific ban price-jump adjustment. Rests on 3 events: skip.
 

@@ -84,6 +84,7 @@ class Config:
     div_mode: str = "rows"       # diversification averaged over rows ("rows") or weighted by units
     floor_grid: tuple = FLOOR_GRID
     s_min: float = None          # a fixed minimum share for every supplier instead of the grid (iter1 style)
+    strat_lanes: tuple = ()      # lanes whose onset draw is stratified over the futures (e.g. ("ATLANTIC", "SOUTH"))
 
 
 MODERATE = Config()
@@ -482,8 +483,12 @@ def make_scenarios(world, info, cfg):
     sup_cty = np.array([cty_ix[c] for c in W.sup.country])
     sup_lane = np.array([lane_ix[l] for l in W.sup.lane])
 
-    def draw_path(q, state, typ, pm=1.0):
-        """Boolean [H] active path for one source."""
+    # stratified onset uniforms for rare lanes (own stream, so strat_lanes=() leaves the futures unchanged)
+    srng = np.random.default_rng(cfg.seed + info.origin + 7919)
+    strat = {lane_ix[l]: (srng.permutation(S) + srng.random(S)) / S for l in cfg.strat_lanes}
+
+    def draw_path(q, state, typ, pm=1.0, r=None):
+        """Boolean [H] active path for one source; r = the onset uniform (drawn here if None)."""
         act = np.zeros(H, bool)
         age = _parse_age(state) if state and state.startswith(typ) else None
         if age is not None:
@@ -493,7 +498,7 @@ def make_scenarios(world, info, cfg):
         qq = np.clip(np.asarray(q[:H]) * pm, 0, 1)
         if qq.sum() > 1:
             qq = qq / qq.sum()
-        r = rng.random()
+        r = rng.random() if r is None else r
         k = int(np.searchsorted(np.cumsum(qq), r))
         if k < H:
             L = _sample_len(rng, lambda x: D.S(typ, x))
@@ -537,7 +542,8 @@ def make_scenarios(world, info, cfg):
                         price[mi, ~a] = np.minimum(price[mi, ~a], -info.cur_jump[mi])
                     dis[s, mi] |= a
         for li, lname in enumerate(P.lanes):
-            a = draw_path(src["q_lane"][li], src["lane_state"][li], "lane", cfg.prob_mult)
+            a = draw_path(src["q_lane"][li], src["lane_state"][li], "lane", cfg.prob_mult,
+                          strat[li][s] if li in strat else None)
             if a.any():
                 extra = cfg.lane_lead + (1 if rng.random() < cfg.lane_lead4_p else 0)
                 for u in np.where(sup_lane == li)[0]:

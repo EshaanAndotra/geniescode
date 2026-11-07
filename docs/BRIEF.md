@@ -69,10 +69,10 @@ In the export-ban chains, the futures premium separates real chains from fizzles
 
 ```
 cd "Code Base/pipelining"
-python run_pipeline.py --data ../../Data_new --tag _p2      # ~1-2 min, writes submissions/submission_{moderate,aggressive}_p2.csv
-python backtest_full.py --data ../../Data_new --tag NAME --origins 52:209:3   # whole pipeline on past windows, ~4+ min on 8 cores
-python score_local.py ../../submissions/FILE.csv --data ../../Data_new        # local score on weeks 209-221
-python verify_scorer.py --data ../../Data_new     # which scorer conventions reproduce the known public scores
+python3 run_pipeline.py --data ../../Data_new --tag _p2      # ~1-2 min, writes submissions/submission_{moderate,aggressive}_p2.csv
+python3 backtest_full.py --data ../../Data_new --tag NAME --origins 52:209:3   # whole pipeline on past windows, ~4+ min on 8 cores
+python3 score_local.py ../../submissions/FILE.csv --data ../../Data_new        # local score on weeks 209-221
+python3 verify_scorer.py --data ../../Data_new     # which scorer conventions reproduce the known public scores
 ```
 
 - `backtest_full.py` plans each past window from the week before it, using only data up to that week, and scores all five parts. With Phase 2 data the origins can run up to 208 (the window 209-221 is now fully observed). Results land in `Code Base/pipelining/backtests/bt_NAME.csv`.
@@ -121,6 +121,7 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 | Hard switch: add the jump only if P(shock) > 0.5 | 0.053 vs 0.096 for the median of the mix |
 | Onset jumps beyond 4 weeks ahead | Added calm-week error |
 | Current iter3 | **0.096** (iter2 0.075, iter1 0.015). Lithium -0.11 and steel flat, both hurt by the 35-week Kestria event |
+| Current pipeline on the newly observed window 209-221 (origin 208, Phase 2 data) | **-0.034**, below carry-forward. The same run: Brier skill 0.52, F 0.89, fill skill 1.0, total 71.7 locally. One window, so weak evidence, but nobody has looked into it yet |
 
 **Ordering (Model 3).** Average full score on the 48 windows.
 
@@ -149,9 +150,9 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 6. **Unconfirmed scorer conventions.** How diversification is averaged (all rows vs weighted by units), what fill skill scores when naive meets all shock-week demand, what "average landed cost" means, and whether starting stock is the sum of the first 5 weeks' demand or 5x the mean. With Phase 2, local scores on weeks 209-221 can be checked against known public scores (`verify_scorer.py`).
 
 **Ideas from similar past competitions** (prompts, not instructions):
-- **VN2 inventory challenge (1st place):** predict, then a simple order-up-to rule with one tuned safety factor. Here the roles flip: demand is known and supply is uncertain, so the thing to forecast is delivered units. Rough critical ratio: short ≈ 4 (5x penalty minus the purchase saved), over at the end ≈ 0.3 → q* ≈ 0.93, near 1 mid-window. Tune on points, not dollars. Appeal: fast, and built differently from the LP, so it may win different windows.
-- **M5 Uncertainty:** calibrated uncertainty beat better point forecasts. Check coverage of the sampled futures: realized capacity and lead time against their 10/50/90 percentiles, and the rate of new onsets inside a window against how often they actually happened.
-- **MITSUI commodity prediction:** simple linear models were hard to beat. Possible cheap gain: per-horizon shrinkage toward carry-forward, fit on past windows. Make sure every estimated quantity is refit on weeks 1-221.
+- **VN2 inventory challenge (1st place, arXiv 2601.18919, read in full):** predict demand, then order up to a critical-ratio quantile with a safety term. The paper reports no tuned value and no ablation, so it doesn't show how much the safety factor itself mattered. Its 13.2% gain is against the organizers' moving-average benchmark, not other teams. VN2 had fixed lead times, unlimited supply and no end-of-horizon effect, and the paper lists simulator-tuned policies (what Model 3 iter3 already is) as future work. If borrowed, the roles flip: demand is known and supply is uncertain, so forecast delivered units. Rough critical ratio here: short ≈ 4 (5x penalty minus the purchase saved), over at the end ≈ 0.3 → q* ≈ 0.93, near 1 mid-window. Tune on points, not dollars. The only clear appeal is that it's built differently from the LP, so it may win different windows.
+- **M5 Uncertainty (claims unverified; primary sources weren't reachable):** the reported lesson is that calibrated uncertainty beat better point forecasts. The check stands on its own either way: compare realized capacity and lead time against the sampled futures' 10/50/90 percentiles, and the rate of new onsets inside a window against how often they actually happened.
+- **MITSUI commodity prediction (from talk slides and summaries, unverified):** simple linear models were hard to beat. Possible cheap gain: per-horizon shrinkage toward carry-forward, fit on past windows. Make sure every estimated quantity is refit on weeks 1-221.
 
 ## 7. Ground rules
 

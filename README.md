@@ -14,7 +14,7 @@ Team repo for the Kaggle competition. **Deadline: Sun Nov 8, 12 PM Central.** Se
 
 ```
 cd "Code Base/pipelining"
-python run_pipeline.py --data ../../Data_new --tag _p2
+python3 run_pipeline.py --data ../../Data_new --tag _p2
 ```
 
 This runs Model 1 (iter4, disruption) → Model 2 (iter3, price) → Model 3 and writes two plans to `submissions/`. It takes 1-2 minutes, validates both files, and prints checks worth reading before upload: data weeks, shocks active at the last week, open news stories, futures premiums above 3%, and order volumes.
@@ -30,9 +30,9 @@ Both share the same `disruption_prob` and `price_forecast`. Without `--tag`, the
 
 | Command (from `Code Base/pipelining`) | What it does |
 |---|---|
-| `python backtest_full.py --data ../../Data_new --tag NAME [--origins 52:209:3]` | Plans past windows the way the private window is planned (from the week before, earlier data only) and scores all five parts. Writes `backtests/bt_NAME.csv`. About 4 minutes on 8 cores |
-| `python score_local.py ../../submissions/FILE.csv --data ../../Data_new` | Scores a file on weeks 209-221, part by part |
-| `python verify_scorer.py --data ../../Data_new` | Tries the unconfirmed scorer conventions and ranks them by how well they reproduce known public scores |
+| `python3 backtest_full.py --data ../../Data_new --tag NAME [--origins 52:209:3]` | Plans past windows the way the private window is planned (from the week before, earlier data only) and scores all five parts. Writes `backtests/bt_NAME.csv`. About 4 minutes on 8 cores |
+| `python3 score_local.py ../../submissions/FILE.csv --data ../../Data_new` | Scores a file on weeks 209-221, part by part |
+| `python3 verify_scorer.py --data ../../Data_new` | Tries the unconfirmed scorer conventions and ranks them by how well they reproduce known public scores |
 
 **Notebook route (Databricks):** `Model 1/iter3/model1_run.ipynb` → `Model 2/iter3/model2_run.ipynb` → `Model 3/iter2/model3_run.ipynb`. This route uses Model 1 iter3 (no news layer) and Eshaan's Model 3.
 

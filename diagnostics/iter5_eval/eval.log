@@ -1,0 +1,25 @@
+26 origins in 21s
+
+BRIER (sharpened disruption_prob; lower is better). changed = rows whose p moved by > 1e-9 vs base
+  mix     premium  rows  2140 brier base 0.1218 -> 0.1204   changed  213: 0.1871 -> 0.1731; unchanged rows identical: True
+  mix     tariff   rows   390 brier base 0.2718 -> 0.2718   changed    0: nan -> nan; unchanged rows identical: True
+  mix     calm     rows   650 brier base 0.1061 -> 0.1061   changed    0: nan -> nan; unchanged rows identical: True
+  mix     ALL      rows  3180 brier base 0.1370 -> 0.1361   changed  213: 0.1871 -> 0.1731; unchanged rows identical: True
+  lane    premium  rows  2140 brier base 0.1218 -> 0.1259   changed 1700: 0.1335 -> 0.1387; unchanged rows identical: True
+  lane    tariff   rows   390 brier base 0.2718 -> 0.2686   changed  190: 0.1030 -> 0.0964; unchanged rows identical: True
+  lane    calm     rows   650 brier base 0.1061 -> 0.1019   changed  478: 0.1385 -> 0.1327; unchanged rows identical: True
+  lane    ALL      rows  3180 brier base 0.1370 -> 0.1385   changed 2368: 0.1321 -> 0.1341; unchanged rows identical: True
+  tariff  premium  rows  2140 brier base 0.1218 -> 0.1218   changed    0: nan -> nan; unchanged rows identical: True
+  tariff  tariff   rows   390 brier base 0.2718 -> 0.2706   changed   20: 0.0273 -> 0.0025; unchanged rows identical: True
+  tariff  calm     rows   650 brier base 0.1061 -> 0.1059   changed    4: 0.0314 -> 0.0025; unchanged rows identical: True
+  tariff  ALL      rows  3180 brier base 0.1370 -> 0.1368   changed   24: 0.0280 -> 0.0025; unchanged rows identical: True
+  all     premium  rows  2140 brier base 0.1218 -> 0.1246   changed 1764: 0.1385 -> 0.1418; unchanged rows identical: True
+  all     tariff   rows   390 brier base 0.2718 -> 0.2675   changed  190: 0.1030 -> 0.0941; unchanged rows identical: True
+  all     calm     rows   650 brier base 0.1061 -> 0.1017   changed  478: 0.1385 -> 0.1325; unchanged rows identical: True
+  all     ALL      rows  3180 brier base 0.1370 -> 0.1374   changed 2432: 0.1357 -> 0.1362; unchanged rows identical: True
+
+PRICE MAPE (benchmark). skill = 1 - MAPE / carry MAPE; calm = not in shock at origin and not disrupted that week
+  base     premium 5.766% (skill +0.169) | tariff 7.523% (skill -0.529) | calm 5.176% (skill +0.013) | ALL 5.861% (skill +0.077) | calm rows 5.187% vs base 5.187% | changed rows 0
+  mix      premium 5.786% (skill +0.166) | tariff 7.523% (skill -0.529) | calm 5.176% (skill +0.013) | ALL 5.874% (skill +0.074) | calm rows 5.187% vs base 5.187% | changed rows 147
+  jump     premium 5.694% (skill +0.180) | tariff 7.523% (skill -0.529) | calm 5.194% (skill +0.010) | ALL 5.816% (skill +0.084) | calm rows 5.230% vs base 5.187% | changed rows 670
+  mix+jump premium 5.704% (skill +0.178) | tariff 7.523% (skill -0.529) | calm 5.194% (skill +0.010) | ALL 5.823% (skill +0.082) | calm rows 5.235% vs base 5.187% | changed rows 698

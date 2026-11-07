@@ -6,9 +6,9 @@ Read this file and `docs/competition.md` (the official rules). That's the full c
 
 This brief gives facts, evidence and open problems. **It doesn't prescribe an architecture.** The current three-model pipeline is a resource, not a spec: any part of it, including the Model 1 → 2 → 3 split itself, can be replaced if the evidence says so.
 
-## 0. Status (Sat Nov 7, night): final files built
+## 0. Status (Sat Nov 7, night): finals uploaded
 
-**Final selection (user decision, Sat night):** `submissions/final_main.csv` (stable; public 69.07) + `submissions/final_hailmary.csv` (= `cand_hailmary.csv`). Backups: `final_hedge_pshift.csv`, then `final_hedge.csv`. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
+**Final selection (user decision, Sat night):** `submissions/final_main.csv` (stable; public 69.07) + `submissions/final_hailmary.csv` (= `cand_hailmary.csv`; uploaded, public 69.07 as expected, since weeks 209-221 are identical to main). Both are on Kaggle; the user selects them manually as the 2 finals before Sun Nov 8, 12 PM CT. Backups: `final_hedge_pshift.csv`, then `final_hedge.csv`. Fallbacks in git: `*_p2v2.csv` (public 67.90 / 59.13) and `*_p2.csv`.
 
 **Why the hail mary replaced hedge_pshift:** both earlier finals kept about 45-55% KES+SUN share, so a Merrow closure hit both. The hail mary is planned on a committed week-221 scenario: Merrow closure starting wk 222-225 for 4-8 wk, Valdmar cobalt curb from about wk 223, the KES 35% tariff from wk 224, and possible KES rare earth limits. Merrow-lane P raised to about 0.8; weeks 209-221 identical to main. Week-221 futures, 300 per group, weights calm .35 / Merrow .30 / cobalt-only .20 / KES-broad .15: E[max(main, X)] = **69.60 vs 68.44** for hedge_pshift. Merrow group 74.72→78.80; other groups −0.07 combined. Caveat: the Merrow group is drawn from the hail mary's own scenario family. History (backtest_pair): 58.32 vs 58.37, worst window 33.3 unchanged, Kestria +0.9 / Merrow −0.9. Weeks 222-234 shares: KES+SUN 0.44 (main 0.48). Guidance: K-adaptability / solution portfolios (pick the pair jointly, anti-correlated) and Lichtendahl & Winkler 2007 (competition rewards extremized forecasts).
 

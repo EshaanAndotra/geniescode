@@ -150,6 +150,8 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 | Hard switch: add the jump only if P(shock) > 0.5 | 0.053 vs 0.096 for the median of the mix |
 | Onset jumps beyond 4 weeks ahead | Added calm-week error |
 | Current iter3 | **0.096** (iter2 0.075, iter1 0.015; both since removed from the repo). Lithium -0.11 and steel flat, both hurt by the 35-week Kestria event |
+| **iter4 (adopted, Nov 7):** keep the onset jump past h = 4 while P(shock) > 0.5, but only when an onset is already likely within 4 weeks; otherwise identical to iter3 | 53 backtest origins: 0.0695 vs 0.0698 (neutral). Premium-chain origins: **0.1019 vs 0.0877**. Calm-week MAPE 4.806% vs 4.789%, all from one false alarm (specialty_glass, origin 103). 89 of 9,930 rows change. At origin 221: cobalt holds +18% → +11% through week 229, rare earths through 230 (9 private rows). Jumping at every horizon (h = 13 everywhere) adds 3x the calm error |
+| Not yet tried: source-specific jump size | The median jump (0.179 log) is pulled down by 7 small country-event onsets at week 99. The 8 single-supplier onsets have a median of about 0.20; the 3 export bans average 0.27. Rests on 8 events |
 | Current pipeline on the newly observed window 209-221 (origin 208, Phase 2 data) | **-0.034**, below carry-forward. The same run: Brier skill 0.52, F 0.89, fill skill 1.0, total 71.7 locally. One window, so weak evidence, but nobody has looked into it yet |
 
 **Ordering (Model 3).** Average full score on the 48 windows.
@@ -164,6 +166,7 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 | iter3 with all hazards x2.5 | 51.1 |
 | iter3 with stress futures | 50.4 (the iter1 aggressive hedge pairs better) |
 | Max share per supplier instead of min share | Within seed noise |
+| **iter4 (adopted, Nov 7):** iter3 planned with starting stock = min(sum of first 5 weeks, 5 x mean demand). The scorer's convention is unresolved, and iter1/iter3 plan with sum5 | Mean over 13 week-221 stress scenarios, out of 70. Scored with sum5: plan_sum5 52.16, plan_5avg 51.01, **plan_min 52.11**. Scored with 5avg: plan_sum5 50.17, plan_5avg 52.20, **plan_min 52.22**. The min plan is never more than 0.05 behind the plan for the right rule. Planning for the wrong rule costs 1-2.6 per scenario (4.6 in the Atlantic case). `backtest_full.py` scores sum5 only, so it can't show the 5avg side |
 | Heavily hedged plan (min share 0.33, penalty 8x, probabilities x1.5) | **44.15 on the public leaderboard**, about 18 below the moderate plans in a mostly calm window |
 | No scenarios, cheapest supplier only | 24.7 (older Model 3-only scale, out of 70) |
 

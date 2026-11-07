@@ -190,6 +190,13 @@ Skill fades with lead time: about 0.7-0.9 at 1-4 weeks, about 0.15 at 9-13 weeks
 
 **Number of sampled futures (infra, Nov 7).** The final plan for weeks 222-234 is one LP solve. Stress mean over 13 scenarios, out of 70: at **n_scen = 200** (the default) seeds 0-4 give 47.97-53.45 (sd 2.04). At **1000**, 51.72-53.37 (sd 0.87, mean **+1.4**). The spread sits almost entirely in the Atlantic and South closure scenarios (rare lane events); without them the 1000-future spread is 0.13. **Final picks must use n_scen >= 1000** (one solve takes about 70 s; 2000 is about 3-5 min). Rare lane events may still need more futures or stratified sampling. Backtests at 200 carry this noise per window; it averages down over many windows.
 
+**Forecast columns, iter5 (adopted for the final build, Nov 7 evening).** `Model 1/iter5` + `Model 2/iter5`; with all flags off they equal iter4 exactly. Orders are unaffected, since Model 3 still reads iter4's q.
+- `premium_mix=0.5`: calibrated onset timing for open premium runs (P columns only). Brier on the changed rows over 18 premium-chain origins: 0.1871 → 0.1731, driven by recent origins; flat on weeks 1-208 alone. **Adopted.**
+- `tariff_floor=0.95`: P(active) >= 0.95 from the effective week through +9 (every past tariff lasted >= 10 wk). Every changed row improves. **Adopted.**
+- `jump_by_source=True` (Model 2): single-supplier jump median 0.201 vs pooled 0.179, better in 6 of 8 LOO. Price skill +0.001 overall; premium-chain MAPE 5.84 → 5.77%. **Adopted.**
+- `lane_floor_m=104` (per-lane calm base; Merrow realized 0.197 vs generator 0.062 per window): slightly better on all origins, worse on premium-chain origins, and moves P at 221 by <= 0.009. **Not adopted.**
+- Generator calibration (BUILDER-2): overall onset rate is calibrated (0.95 expected vs 0.97 realized per window). Merrow's calm rate is about 3x low (pooled across lanes). Truly unwarned shocks: P(at least 1 per window) ≈ 0.27, used as the blindside weight for main.
+
 **Biggest lesson so far:** the largest gain came from optimizing the score's actual structure (points per window, with per-window normalizers) instead of a proxy (dollars).
 
 ## 6. Open problems: where the points are

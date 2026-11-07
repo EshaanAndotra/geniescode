@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Has private links (Zoom room with password, team Kaggle invite, opt-in form): keep out of the repo
+Participant Cheat Sheet (share with teams).docx

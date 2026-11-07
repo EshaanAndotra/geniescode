@@ -35,7 +35,7 @@ KNOWN = {   # public leaderboard (weeks 209-221), all built from Phase 1 data
     os.path.join(ROOT, "submissions", "submission_moderate_iter5.csv"): 68.40,
     os.path.join(ROOT, "submissions", "submission_moderate_wild.csv"): 65.29,
     os.path.join(ROOT, "submissions", "C_full_moderate.csv"): 62.33,
-    os.path.join(HERE, "Model 3", "iter2", "outputs", "submission_B.csv"): 44.15,
+    os.path.join(ROOT, "submissions", "submission_B_iter2.csv"): 44.15,
 }
 START, END = 209, 221
 

@@ -35,7 +35,7 @@ Both share the same `disruption_prob` and `price_forecast`. Without `--tag`, the
 | `python3 verify_scorer.py --data ../../Data_new` | Tries the unconfirmed scorer conventions and ranks them by how well they reproduce known public scores |
 | `python3 validate_submission.py ../../submissions/FILE.csv [...] --data ../../Data_new` | Checks files against every rejection rule and team rule (ids, blanks, ranges, whole orders, shares). Lists every problem, and exits 1 if any file fails. Run it on every file before handing it over or uploading |
 
-**Notebook route (Databricks):** `Model 1/iter3/model1_run.ipynb` → `Model 2/iter3/model2_run.ipynb` → `Model 3/iter2/model3_run.ipynb`. This route uses Model 1 iter3 (no news layer) and Eshaan's Model 3.
+**Databricks:** the team is in the Databricks track. The final pipeline gets ported to the team's Databricks workspace once it's validated here; `dq_rules/`, `sql/` and `04_pipeline.py` are the existing data-quality pieces.
 
 ## Public scores (Phase 1 files, weeks 209-221)
 
@@ -44,7 +44,7 @@ Both share the same `disruption_prob` and `price_forecast`. Without `--tag`, the
 | `submissions/submission_moderate_iter5.csv` | **68.40** |
 | `submissions/submission_moderate_wild.csv` | 65.29 |
 | `submissions/C_full_moderate.csv` | 62.33 |
-| `Code Base/pipelining/Model 3/iter2/outputs/submission_B.csv` (as in commit `ebacbf8`) | 44.15 |
+| `submissions/submission_B_iter2.csv` (Eshaan's Model 3 iter2 plan B) | 44.15 |
 
 Since Phase 2, the public weeks are in the data, so public scores no longer predict the private leaderboard. Their remaining use is pinning down scorer conventions (`verify_scorer.py`, `submissions/probes/`).
 
@@ -59,12 +59,15 @@ Code Base/pipelining/
   backtest_full.py       whole pipeline on past windows, every score part
   score_local.py         local scorer (with alternative conventions)
   verify_scorer.py       which conventions reproduce the public scores
+  validate_submission.py every rejection and team rule, checked before handover or upload
+  stress_private.py      hand-built futures for weeks 222-234, scored for both picks
   backtests/             backtest results, one CSV per configuration
-  Model 1/iter4/         current disruption model (iter3 + news story layer); iter3 = no news
+  Model 1/iter4/         current disruption model (iter3 + news story layer)
+  Model 1/iter3/         the same model without news (Model 3's fallback when MODEL1_DIR isn't set)
   Model 2/iter3/         current price model and landed costs (Eshaan)
-  Model 3/iter3/         current lean ordering plan; iter1/ = simulator, scenarios, hedged preset;
-                         iter2/ = Eshaan's version with notebook
+  Model 3/iter3/         current lean ordering plan (main pick)
+  Model 3/iter1/         simulator, scenario futures, LP, hedged preset (hedge pick)
   dq_rules/, sql/, 04_pipeline.py   Databricks data-quality pipeline
 ```
 
-Older iterations (Model 1 iter1, iter2 and archive; Model 2 iter1 and iter2) are superseded and kept for the record.
+Superseded iterations, notebooks and Phase 1 output files are no longer in the repo; they're in git history.

@@ -8,7 +8,7 @@ import numpy as np, pandas as pd
 from run_pipeline import load_module
 m3 = load_module("model3")
 W0 = m3.World(m3.load_data("../../Data_new"))
-lc = pd.read_csv("../../submissions/landed_costs_p2.csv"); lc = lc[lc.window == "222-234"]
+lc = pd.read_csv("../../submissions/phase2/landed_costs_p2.csv"); lc = lc[lc.window == "222-234"]
 S, E = 222, 234
 sup = W0.sup; key = {(m, c): u for u, (m, c) in enumerate(zip(sup.material, sup.country))}
 base_t = lc[lc.week == S].set_index(["material", "country"]).tariff_forecast
@@ -62,7 +62,7 @@ SCEN = {
     "Atlantic closure 225-230": [atlantic],
     "South closure 225-230": [south],
 }
-files = {"main": "../../submissions/submission_moderate_p2.csv", "hedge": "../../submissions/submission_aggressive_p2.csv"}
+files = {"main": "../../submissions/phase2/submission_moderate_p2.csv", "hedge": "../../submissions/phase2/submission_aggressive_p2.csv"}
 plans = {}
 for k, f in files.items():
     d = pd.read_csv(f); x = d.id.str.extract(r"^w(\d+)_(.+)$"); d["week"], d["material"] = x[0].astype(int), x[1]

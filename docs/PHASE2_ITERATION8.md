@@ -2,11 +2,11 @@
 
 Built from the Phase 2 data (weeks 1-221) for the private window, weeks 222-234. Only those 13 weeks count for the private score, so every number was tuned to the week-221 state and checked against the closest past situations. Values that rest on one or two past events were left alone.
 
-**Final picks:** `submissions/submission_main_it8.csv` (main) and `submissions/submission_war_it8.csv` (war hedge). Upload both and select both as final submissions. Kaggle keeps the better one. If they aren't selected by hand, Kaggle picks the two best public scores instead.
+**Final picks:** `submissions/final/submission_main_it8.csv` (main) and `submissions/final/submission_war_it8.csv` (war hedge). Upload both and select both as final submissions. Kaggle keeps the better one. If they aren't selected by hand, Kaggle picks the two best public scores instead.
 
 ```
 cd "Code Base/pipelining"
-python run_pipeline_p2.py          # about 45 s; finds Data_new/ on its own, writes both files to submissions/
+python run_pipeline_p2.py          # about 45 s; finds Data_new/ on its own, writes both files to submissions/final/
 ```
 
 This work sits next to the existing code; it adds files and changes none. The new model folders are numbered past everything on `main` and on `alan/b2-forecast`:
@@ -154,17 +154,17 @@ python backtest_phase2.py --mode full --plans '[{"name":"new"},{"name":"old","m1
 
 # scenario files and the full-score comparison in the three worlds
 python scenarios/build_scenarios.py war '{"ovr": [["lane:MERROW", 0.9, 1, 3, 6]]}'
-python scenarios/eval_scenarios.py main=../../submissions/submission_main_it8.csv war=../../submissions/submission_war_it8.csv
+python scenarios/eval_scenarios.py main=../../submissions/final/submission_main_it8.csv war=../../submissions/final/submission_war_it8.csv
 STOCK=5avg python scenarios/eval_scenarios.py ...            # same, scored with the 5 x mean starting stock
 ```
 
 **`backtest_phase2.py`:**
 - Each plan is a JSON object with any of: `m1`, `m2`, `m3` (folder), `preset`, `sharpen`, `m1cfg`, `m2cfg`, `m3cfg`.
 - Results are reported for each group: all windows, design-era (ending by week 208), windows reaching the new weeks, the public window (origin 208), alert, warning, shock and calm. With two or more plans in full mode it adds best of two for each pair.
-- Groups are fixed by `backtests/p2_alert_ref.csv`, so every plan is compared on the same windows.
-- Results go to `backtests/p2_<mode>_<name>.csv`.
+- Groups are fixed by `backtests/phase2/p2_alert_ref.csv`, so every plan is compared on the same windows.
+- Results go to `backtests/phase2/p2_<mode>_<name>.csv`.
 
-The saved `backtests/p2_*.csv` files were made before the folders were renumbered:
+The saved `backtests/phase2/p2_*.csv` files were made before the folders were renumbered:
 
 | In the saved files | Folder now |
 |---|---|
@@ -184,9 +184,9 @@ Code Base/pipelining/scenarios/eval_scenarios.py  full score in status quo / Mer
 Code Base/pipelining/Model 1/iter6/               model1.py, news_stories.py (news_stories.py unchanged from iter4)
 Code Base/pipelining/Model 2/iter6/model2.py
 Code Base/pipelining/Model 3/iter5/model3.py
-Code Base/pipelining/backtests/p2_*.csv           backtest results behind the tables above
-submissions/submission_main_it8.csv               main pick
-submissions/submission_war_it8.csv                war hedge
+Code Base/pipelining/backtests/phase2/p2_*.csv    backtest results behind the tables above
+submissions/final/submission_main_it8.csv         main pick
+submissions/final/submission_war_it8.csv          war hedge
 docs/PHASE2_ITERATION8.md                         this file
 ```
 

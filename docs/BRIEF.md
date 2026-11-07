@@ -65,7 +65,7 @@ In the export-ban chains, the futures premium separates real chains from fizzles
 
 ### 3b. How the current pipeline responds at week 221 (builder run, Nov 7 ~3 PM)
 
-Fallback picks built from Phase 2 data and committed: `submissions/submission_moderate_p2.csv` (main) and `submission_aggressive_p2.csv` (hedge). Both validated.
+Fallback picks built from Phase 2 data and committed: `submissions/phase2/submission_moderate_p2.csv` (main) and `submission_aggressive_p2.csv` (hedge). Both validated.
 
 | Signal | disruption_prob and orders | price_forecast |
 |---|---|---|
@@ -98,13 +98,13 @@ What it shows: **at this origin the hedge rarely adds anything.** The main pick 
 
 ```
 cd "Code Base/pipelining"
-python3 run_pipeline.py --data ../../Data_new --tag _p2      # ~1-2 min, writes submissions/submission_{moderate,aggressive}_p2.csv
+python3 run_pipeline.py --data ../../Data_new --tag _p2      # ~1-2 min, writes submissions/phase2/submission_{moderate,aggressive}_p2.csv
 python3 backtest_full.py --data ../../Data_new --tag NAME --origins 52:209:3   # whole pipeline on past windows, ~4+ min on 8 cores
-python3 score_local.py ../../submissions/FILE.csv --data ../../Data_new        # local score on weeks 209-221
+python3 score_local.py ../../submissions/final/FILE.csv --data ../../Data_new        # local score on weeks 209-221
 python3 verify_scorer.py --data ../../Data_new     # which scorer conventions reproduce the known public scores
 ```
 
-- `backtest_full.py` plans each past window from the week before it, using only data up to that week, and scores all five parts. With Phase 2 data the origins can run up to 208 (the window 209-221 is now fully observed). Results land in `Code Base/pipelining/backtests/bt_NAME.csv`.
+- `backtest_full.py` plans each past window from the week before it, using only data up to that week, and scores all five parts. With Phase 2 data the origins can run up to 208 (the window 209-221 is now fully observed). Results land in `Code Base/pipelining/backtests/phase1/bt_NAME.csv`.
 - The simulator and the scenario LP live in `Model 3/iter1/model3.py`; iter3 imports and extends it.
 - Model 1 also computes per-source hazards and duration curves, which Model 3 samples futures from. They're computed in memory on every run; old CSV exports from week 208 were removed from the repo.
 - `submissions/probes/` holds files built to pin down unconfirmed scorer conventions from their public scores (`predictions_F.csv` lists the predicted score under each convention). Whether they've been uploaded isn't recorded. Ask before using upload slots on them.
@@ -204,7 +204,7 @@ Where innovation is most likely to pay, in my view: (1) choosing the second file
 **Hard limits:**
 - **No leakage.** A plan for a window starting at week w uses only data up to week w-1. The private window is planned from week 221.
 - **Measure, don't assert.** Judge every change with `backtest_full.py` (or an equivalent that plans each window from its own past). Report its effect on the **best-of-two** with the other final pick, plus all-window, calm and shock-window means and the worst window. The public leaderboard no longer predicts the private one.
-- **Keep the safety net.** The current pipeline's Phase 2 outputs (`submissions/*_p2.csv`) are the fallback picks. Don't overwrite them or any file listed in the README scoreboard. Write new files with a distinct `--tag`.
+- **Keep the safety net.** The current pipeline's Phase 2 outputs (`submissions/phase2/*_p2.csv`) are the fallback picks. Don't overwrite them or any file listed in the README scoreboard. Write new files with a distinct `--tag`.
 - **No uploads, final selection or git commits.** The user does those.
 - **Validate every file you hand over:** 260 rows, ids `w{week}_{material}`, no blanks, probabilities in [0, 1], price > 0, orders >= 0 and whole, shares summing to 1 with 0 for non-suppliers.
 - **Time.** Everything must be decided well before Sun 12 PM CT, and the video needs time too. Prefer an approach that can be backtested in a few hours over one that can't be validated in time.

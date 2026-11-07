@@ -32,10 +32,10 @@ sys.path.insert(0, HERE)
 from run_pipeline import find_data, load_module  # noqa: E402
 
 KNOWN = {   # public leaderboard (weeks 209-221), all built from Phase 1 data
-    os.path.join(ROOT, "submissions", "submission_moderate_iter5.csv"): 68.40,
-    os.path.join(ROOT, "submissions", "submission_moderate_wild.csv"): 65.29,
-    os.path.join(ROOT, "submissions", "C_full_moderate.csv"): 62.33,
-    os.path.join(ROOT, "submissions", "submission_B_iter2.csv"): 44.15,
+    os.path.join(ROOT, "submissions", "phase1", "submission_moderate_iter5.csv"): 68.40,
+    os.path.join(ROOT, "submissions", "phase1", "submission_moderate_wild.csv"): 65.29,
+    os.path.join(ROOT, "submissions", "phase1", "C_full_moderate.csv"): 62.33,
+    os.path.join(ROOT, "submissions", "phase1", "submission_B_iter2.csv"): 44.15,
 }
 START, END = 209, 221
 

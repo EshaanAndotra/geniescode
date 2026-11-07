@@ -19,7 +19,7 @@ Upload both submission files and select both as final submissions (Kaggle keeps 
 
 Usage:
   python run_pipeline_p2.py                      # finds Data_new/ (Phase 2, weeks 1-221) on its own
-  python run_pipeline_p2.py --data ../../Data_new --out-dir ../../submissions --tag _x
+  python run_pipeline_p2.py --data ../../Data_new --out-dir ../../submissions/final --tag _x
 """
 import argparse
 import glob
@@ -115,7 +115,7 @@ def checks(m1, m2, data, last_week):
 def main():
     ap = argparse.ArgumentParser(description="Phase 2 final submissions: main pick + war hedge")
     ap.add_argument("--data", help="folder with the competition CSVs (default: Data_new, then Data)")
-    ap.add_argument("--out-dir", default=os.path.normpath(os.path.join(HERE, os.pardir, os.pardir, "submissions")))
+    ap.add_argument("--out-dir", default=os.path.normpath(os.path.join(HERE, os.pardir, os.pardir, "submissions", "final")))
     ap.add_argument("--skip-checks", action="store_true")
     ap.add_argument("--tag", default="", help="suffix for output file names")
     ap.add_argument("--sharpen", type=float, default=SHARPEN_K, help="Model 1 sharpening k for calm outlooks (1 = off)")

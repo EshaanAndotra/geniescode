@@ -14,7 +14,7 @@ also passes here. Unlike that function, this reports every problem, not just the
 Also prints, without failing: units ordered / demand per window, mean diversification, and rows that
 are identical to the naive sample submission.
 
-  python3 validate_submission.py ../../submissions/FILE.csv [MORE.csv ...] [--data ../../Data_new]
+  python3 validate_submission.py ../../submissions/final/FILE.csv [MORE.csv ...] [--data ../../Data_new]
 """
 import argparse
 import os

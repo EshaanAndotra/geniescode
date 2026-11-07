@@ -8,7 +8,7 @@ Prices in each future = week-221 benchmark x the scenario's shock jumps x a calm
 every file). Prints each file's mean score and parts per world, best of two with the first file per world,
 and best of two for mixes of the worlds.
 
-  python scenarios/eval_scenarios.py main=../../submissions/submission_main_it8.csv war=../../submissions/submission_war_it8.csv
+  python scenarios/eval_scenarios.py main=../../submissions/final/submission_main_it8.csv war=../../submissions/final/submission_war_it8.csv
   STOCK=5avg python scenarios/eval_scenarios.py ...      # score with the 5 x mean starting-stock reading
 """
 import sys, os, inspect, warnings, itertools, numpy as np, pandas as pd

@@ -17,7 +17,7 @@ DATA = HERE + "/../../Data_new"
 data = m1.load_data(DATA); P = m1.Panels(data); pdata = m2.PriceData(data, panels=P)
 worlds = {"iter5": m3.World(m3.load_data(DATA))}
 mods = {"iter5": m3}
-main = pd.read_csv(HERE + "/../../submissions/submission_main_it8.csv")
+main = pd.read_csv(HERE + "/../../submissions/final/submission_main_it8.csv")
 OUT = os.path.join(HERE, "scenarios", "out"); os.makedirs(OUT, exist_ok=True)
 WIN = ((209, 221), (222, 234))
 for name, spec in zip(sys.argv[1::2], sys.argv[2::2]):

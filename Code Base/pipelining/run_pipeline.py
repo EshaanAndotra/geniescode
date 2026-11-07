@@ -19,7 +19,7 @@ and prints checks worth reading before uploading: data weeks, shocks active at t
 signals past their training range, futures premiums, and the order volume of each plan.
 
 Usage:
-  python run_pipeline.py --data ../../Data --out-dir ../../submissions
+  python run_pipeline.py --data ../../Data --out-dir ../../submissions/phase1
   python run_pipeline.py                    # data found automatically (repo Data/ or /kaggle/input)
 """
 import argparse
@@ -112,7 +112,7 @@ def checks(m1, m2, data, last_week):
 def main():
     ap = argparse.ArgumentParser(description="Build final submissions (Models 1-3)")
     ap.add_argument("--data", help="folder with the competition CSVs")
-    ap.add_argument("--out-dir", default=os.path.normpath(os.path.join(HERE, os.pardir, os.pardir, "submissions")))
+    ap.add_argument("--out-dir", default=os.path.normpath(os.path.join(HERE, os.pardir, os.pardir, "submissions", "phase2")))
     ap.add_argument("--skip-checks", action="store_true")
     ap.add_argument("--model1-iter", default="iter4", choices=["iter3", "iter4"],
                     help="iter4 (default) adds the news story layer, +2.96 on the public LB vs iter3; "

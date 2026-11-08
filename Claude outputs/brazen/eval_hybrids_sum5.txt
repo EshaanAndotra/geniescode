@@ -1,0 +1,95 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done tree big war
+
+### single-file mean total
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                66.56           74.33        75.51           58.27         76.45
+war_mk                  58.97           71.32        83.60           48.21         83.46
+bigwar                  54.56           65.22        81.95           44.12         80.55
+mk_bwprice              56.33           66.10        81.73           47.55         80.91
+mk_s2                   58.17           70.14        83.54           47.78         83.55
+mk_bwprice_s2           56.15           65.75        81.67           47.46         81.00
+
+### single-file P(total > 85)
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.000           0.000        0.000           0.000         0.000
+war_mk                  0.003           0.003        0.287           0.000         0.233
+bigwar                  0.000           0.003        0.220           0.000         0.153
+mk_bwprice              0.007           0.003        0.210           0.003         0.152
+mk_s2                   0.003           0.007        0.320           0.000         0.277
+mk_bwprice_s2           0.007           0.003        0.213           0.003         0.167
+
+### brier
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.500           0.537        0.507           0.458         0.512
+war_mk                 -0.083           0.314        0.844          -0.423         0.858
+bigwar                 -0.316           0.257        0.876          -0.806         0.862
+mk_bwprice             -0.083           0.314        0.844          -0.423         0.858
+mk_s2                  -0.271           0.199        0.841          -0.668         0.863
+mk_bwprice_s2          -0.271           0.199        0.841          -0.668         0.863
+
+### price
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.091           0.091        0.174           0.075         0.157
+war_mk                  0.091           0.091        0.174           0.075         0.157
+bigwar                 -0.657          -0.687        0.018          -0.724        -0.057
+mk_bwprice             -0.657          -0.687        0.018          -0.724        -0.057
+mk_s2                   0.091           0.091        0.174           0.075         0.157
+mk_bwprice_s2          -0.657          -0.687        0.018          -0.724        -0.057
+
+### F
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.725           0.882        0.918           0.575         0.926
+war_mk                  0.685           0.867        0.929           0.517         0.923
+bigwar                  0.628           0.845        0.918           0.423         0.911
+mk_bwprice              0.685           0.867        0.929           0.517         0.923
+mk_s2                   0.685           0.867        0.929           0.517         0.923
+mk_bwprice_s2           0.685           0.867        0.929           0.517         0.923
+
+### fs
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.928           0.971        0.939           0.856         0.974
+war_mk                  0.921           0.979        0.992           0.859         0.994
+bigwar                  0.953           0.989        0.997           0.886         0.999
+mk_bwprice              0.921           0.979        0.992           0.859         0.994
+mk_s2                   0.921           0.979        0.992           0.859         0.994
+mk_bwprice_s2           0.921           0.979        0.992           0.859         0.994
+
+### div
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.874           0.874        0.874           0.874         0.874
+war_mk                  0.927           0.927        0.927           0.927         0.927
+bigwar                  0.920           0.920        0.920           0.920         0.920
+mk_bwprice              0.927           0.927        0.927           0.927         0.927
+mk_s2                   0.927           0.927        0.927           0.927         0.927
+mk_bwprice_s2           0.927           0.927        0.927           0.927         0.927
+
+### single-file 90th percentile
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                77.65           78.47        77.85           70.12         78.81
+war_mk                  78.92           81.02        85.89           59.99         85.93
+bigwar                  67.94           71.80        86.60           57.16         85.72
+mk_bwprice              68.80           72.99        86.28           58.83         85.95
+mk_s2                   78.06           80.98        86.29           59.24         86.32
+mk_bwprice_s2           67.59           72.69        86.46           58.79         86.19
+
+### with main_it8: P(better of two > 85)
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                0.000           0.000        0.000           0.000         0.000
+war_mk                  0.003           0.003        0.287           0.000         0.233
+bigwar                  0.000           0.003        0.220           0.000         0.153
+mk_bwprice              0.007           0.003        0.210           0.003         0.152
+mk_s2                   0.003           0.007        0.320           0.000         0.277
+mk_bwprice_s2           0.007           0.003        0.213           0.003         0.167
+
+### with main_it8: mean of better of two
+               it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree big war
+main_it8                66.56           74.33        75.51           58.27         76.45
+war_mk                  67.34           75.78        83.60           58.55         83.46
+bigwar                  66.84           74.64        82.10           58.51         80.97
+mk_bwprice              66.82           74.55        81.85           58.50         81.23
+mk_s2                   67.25           75.62        83.54           58.50         83.55
+mk_bwprice_s2           66.81           74.54        81.83           58.49         81.33

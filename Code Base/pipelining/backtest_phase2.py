@@ -36,7 +36,7 @@ Examples:
   python backtest_phase2.py --mode full --plans '[{"name":"main"},{"name":"hedge","m3":"iter1","preset":"aggressive"}]'
   python backtest_phase2.py --mode full --origins 208:209:1          # the public window only
 
-Writes backtests/p2_<mode>_<name>.csv per plan and prints the summary table, plus best-of-two
+Writes backtests/phase2/p2_<mode>_<name>.csv per plan and prints the summary table, plus best-of-two
 for every pair of plans in full mode (Kaggle keeps the better of a team's 2 final picks).
 """
 import argparse
@@ -195,7 +195,7 @@ def main():
     ap.add_argument("--plans", default='[{"name": "main"}]', help="JSON list of plans (see the docstring)")
     ap.add_argument("--origins", default="52:209:3", help="start:stop:step, stop exclusive (52:209:3 ends at 208)")
     ap.add_argument("--alert", type=float, default=0.15, help="alert group: mean predicted p at the origin >= this")
-    ap.add_argument("--alert-ref", default=os.path.join(HERE, "backtests", "p2_alert_ref.csv"),
+    ap.add_argument("--alert-ref", default=os.path.join(HERE, "backtests", "phase2", "p2_alert_ref.csv"),
                     help="CSV (origin, alert_p) that fixes the alert groups across plans; written by the first run")
     ap.add_argument("--jobs", type=int, default=max(1, os.cpu_count() or 1))
     ap.add_argument("--tag", default="")
@@ -203,7 +203,7 @@ def main():
     plans = json.loads(args.plans)
     a, b, c = (int(x) for x in args.origins.split(":"))
     origins = sorted(set(range(a, b, c)))
-    os.makedirs(os.path.join(HERE, "backtests"), exist_ok=True)
+    os.makedirs(os.path.join(HERE, "backtests", "phase2"), exist_ok=True)
     pd.set_option("display.width", 250)
     results = {}
     if os.path.exists(args.alert_ref):
@@ -216,7 +216,7 @@ def main():
         if "alert_ref" not in G and len(bt) > 100:
             bt[["origin", "alert_p"]].to_csv(args.alert_ref, index=False)
             G["alert_ref"] = bt[["origin", "alert_p"]]
-        path = os.path.join(HERE, "backtests", f"p2_{args.mode}_{name}{args.tag}.csv")
+        path = os.path.join(HERE, "backtests", "phase2", f"p2_{args.mode}_{name}{args.tag}.csv")
         bt.to_csv(path, index=False)
         cols = ["P", "brier_skill", "price_skill"] if args.mode == "P" else \
             ["score", "P", "brier_skill", "price_skill", "F", "fill_skill", "div", "R"]

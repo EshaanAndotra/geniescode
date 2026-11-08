@@ -12,7 +12,7 @@ the alternative scorer conventions (score_fs_undef1, score_F_mat, ...).
   python backtest_full.py --m3 iter1 --preset aggressive --tag hedge   # the hedge pick
   python backtest_full.py --m3 iter1 --sharpen 1 --tag old_main        # the pre-iteration-5 main pick
 
-Writes backtests/bt_<tag>.csv (one row per window) and prints the averages, split into windows
+Writes backtests/phase1/bt_<tag>.csv (one row per window) and prints the averages, split into windows
 where naive runs short in shock weeks ("shock") and the rest ("calm").
 """
 import argparse
@@ -117,8 +117,8 @@ def main():
     a, b, c = (int(x) for x in args.origins.split(":"))
     t = time.time()
     bt = run(list(range(a, b, c)), args.preset, json.loads(args.cfg), paths, args.data, args.jobs, args.sharpen)
-    os.makedirs(os.path.join(HERE, "backtests"), exist_ok=True)
-    out = os.path.join(HERE, "backtests", f"bt_{args.tag}.csv")
+    os.makedirs(os.path.join(HERE, "backtests", "phase1"), exist_ok=True)
+    out = os.path.join(HERE, "backtests", "phase1", f"bt_{args.tag}.csv")
     bt.to_csv(out, index=False)
     pd.set_option("display.width", 200)
     print(summarize(bt).round(3).to_string())

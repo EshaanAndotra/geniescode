@@ -1,0 +1,75 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done it8 late closure
+done it8 tariff fails
+done it8 cobalt ban fails
+done it8 RE ban fails
+done it8 all three certain
+done tree calibrated
+done tree no closure
+done tree tariff fails
+done tree bans fizzle
+done tree short bans
+
+### single-file mean total by world
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           65.66           72.63        70.89           58.07             64.94             55.59                 60.33             55.71                  65.87            66.73            59.22              58.16             50.41            62.34
+hailmary             61.56           74.39        78.39           49.61             66.92             55.39                 58.19             52.70                  62.00            64.69            49.84              59.26             48.69            59.81
+main_it8             67.27           74.45        75.05           59.40             70.10             57.06                 62.65             56.61                  67.83            68.43            59.50              59.93             50.96            63.79
+war_it8              62.56           74.95        82.09           50.91             67.85             56.76                 60.29             54.20                  63.29            64.91            50.09              60.07             50.20            61.14
+nowar_it8            55.23           42.65        46.34           65.44             35.14             42.79                 49.17             41.77                  54.91            49.14            64.21              40.77             33.18            46.73
+
+### brier
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           0.505           0.506        0.431           0.494             0.409            -0.352                 0.359             0.376                  0.522            0.516            0.498             -0.456             0.277            0.419
+hailmary             0.300           0.555        0.659           0.071             0.336            -0.721                 0.132             0.198                  0.340            0.343           -0.019             -0.884             0.017            0.182
+main_it8             0.500           0.537        0.507           0.458             0.450            -0.389                 0.368             0.387                  0.523            0.503            0.436             -0.520             0.269            0.415
+war_it8              0.173           0.541        0.760          -0.148             0.329            -0.959                 0.011             0.069                  0.227            0.217           -0.293             -1.168            -0.164            0.029
+nowar_it8            0.477           0.335        0.241           0.590             0.416            -0.365                 0.353             0.351                  0.491            0.472            0.622             -0.459             0.290            0.421
+
+### price
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           0.076           0.075        0.114           0.062             0.070             0.070                -0.095            -0.100                  0.072             0.04            0.038              0.043            -0.337           -0.089
+hailmary             0.076           0.075        0.114           0.062             0.070             0.070                -0.095            -0.100                  0.072             0.04            0.038              0.043            -0.337           -0.089
+main_it8             0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+war_it8              0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+nowar_it8            0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+
+### F
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           0.748           0.881        0.894           0.625             0.810             0.687                 0.737             0.697                  0.755            0.793            0.670              0.754             0.692            0.756
+hailmary             0.676           0.865        0.919           0.503             0.788             0.615                 0.671             0.615                  0.682            0.745            0.557              0.698             0.597            0.680
+main_it8             0.734           0.886        0.915           0.589             0.824             0.672                 0.727             0.679                  0.739            0.788            0.638              0.745             0.668            0.740
+war_it8              0.711           0.880        0.936           0.553             0.811             0.644                 0.705             0.653                  0.717            0.769            0.596              0.723             0.638            0.713
+nowar_it8            0.641           0.521        0.571           0.744             0.413             0.560                 0.610             0.544                  0.632            0.585            0.756              0.558             0.506            0.568
+
+### fs
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           0.858           0.938        0.875           0.743             0.795             0.850                 0.831             0.683                  0.846            0.837            0.724              0.840             0.591            0.850
+hailmary             0.917           0.978        0.962           0.839             0.966             0.916                 0.901             0.724                  0.915            0.908            0.809              0.922             0.630            0.914
+main_it8             0.945           0.970        0.923           0.884             0.962             0.924                 0.929             0.721                  0.950            0.919            0.830              0.921             0.627            0.934
+war_it8              0.956           0.980        0.989           0.894             0.968             0.925                 0.936             0.729                  0.964            0.915            0.826              0.922             0.626            0.926
+nowar_it8            0.612           0.363        0.479           0.814             0.149             0.574                 0.574             0.348                  0.607            0.458            0.719              0.485             0.183            0.491
+
+### div
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+final_main           0.848           0.848        0.848           0.848             0.848             0.848                 0.848             0.848                  0.848            0.848            0.848              0.848             0.848            0.848
+hailmary             0.912           0.912        0.912           0.912             0.912             0.912                 0.912             0.912                  0.912            0.912            0.912              0.912             0.912            0.912
+main_it8             0.874           0.874        0.874           0.874             0.874             0.874                 0.874             0.874                  0.874            0.874            0.874              0.874             0.874            0.874
+war_it8              0.900           0.900        0.900           0.900             0.900             0.900                 0.900             0.900                  0.900            0.900            0.900              0.900             0.900            0.900
+nowar_it8            0.778           0.778        0.778           0.778             0.778             0.778                 0.778             0.778                  0.778            0.778            0.778              0.778             0.778            0.778
+
+### best of two (mean over futures of the better file's total)
+                        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main_it8 + nowar_it8             71.30           74.45        75.05           67.19             70.10             60.54                 66.67             61.27                  71.89            71.78            67.70              62.55             55.66            68.47
+war_it8 + nowar_it8              70.64           74.98        82.09           66.43             67.85             60.89                 66.80             61.19                  71.94            72.00            66.80              63.23             55.79            68.37
+hailmary + nowar_it8             70.40           74.42        78.39           66.28             66.92             60.62                 66.12             60.89                  71.46            71.96            66.76              63.18             55.55            68.26
+final_main + nowar_it8           70.12           72.63        70.89           66.55             64.94             59.06                 64.89             59.53                  70.66            69.90            66.70              61.00             54.10            67.03
+main_it8 + war_it8               68.25           76.50        82.09           59.61             70.81             58.45                 63.86             57.74                  68.89            69.66            59.65              61.29             51.99            64.76
+final_main + main_it8            68.19           74.59        75.05           61.17             70.15             58.01                 63.48             57.68                  68.66            69.30            61.53              60.54             52.13            64.84
+final_main + war_it8             67.99           76.37        82.09           59.68             68.84             58.60                 63.63             58.07                  68.50            69.64            60.17              61.42             52.77            65.00
+hailmary + main_it8              67.80           75.77        78.39           59.60             70.38             57.99                 63.25             57.27                  68.48            69.38            59.68              61.23             51.65            64.45
+final_main + hailmary            67.33           75.59        78.39           59.20             67.92             58.14                 62.63             57.70                  67.62            69.43            60.24              61.28             52.45            64.46
+hailmary + war_it8               63.36           75.46        82.09           52.01             68.36             57.21                 60.72             54.74                  64.09            65.81            51.38              60.62             50.57            61.66

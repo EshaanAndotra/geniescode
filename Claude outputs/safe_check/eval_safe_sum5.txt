@@ -1,0 +1,56 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done it8 late closure
+done tree calibrated
+done tree no closure
+done tree Merrow closes
+done tree big war
+done tree long closure
+done tree short closure
+
+### single-file mean total
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  tree long closure  tree short closure
+main_it8                  66.56           74.33        75.51           58.27             70.08            68.24            59.10               75.44         76.58              74.67               73.71
+final_main                67.42           73.61        72.04           61.08             69.25            68.72            61.97               74.54         73.34              72.28               74.35
+war_it8                   61.67           74.79        82.07           49.80             67.89            64.77            49.72               76.03         81.56              79.38               68.54
+nowar_it8                 55.04           43.19        46.77           64.99             35.90            49.48            64.21               39.67         48.11              30.28               50.63
+hailmary                  61.80           74.48        78.75           50.11             67.34            65.18            50.65               76.29         78.99              77.31               70.17
+brazen_mk_sharp           58.17           70.14        83.54           47.78             68.22            61.78            48.67               71.22         83.62              81.01               64.33
+
+### single-file P(total > 85)
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  tree long closure  tree short closure
+main_it8                  0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+final_main                0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+war_it8                   0.000           0.000         0.02             0.0               0.0            0.000              0.0               0.000         0.010              0.000                 0.0
+nowar_it8                 0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+hailmary                  0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+brazen_mk_sharp           0.003           0.007         0.32             0.0               0.0            0.003              0.0               0.005         0.313              0.038                 0.0
+
+### single-file 90th percentile
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  tree long closure  tree short closure
+main_it8                  77.65           78.47        77.85           70.12             75.75            77.79            70.54               78.50         78.83              77.25               77.95
+final_main                77.27           78.69        75.25           72.45             75.77            77.73            73.69               78.41         76.48              75.49               78.91
+war_it8                   79.35           81.21        84.13           62.63             75.30            80.29            58.58               81.24         83.99              82.25               74.37
+nowar_it8                 74.74           54.28        52.73           75.65             46.06            75.95            78.22               50.92         54.71              33.64               57.99
+hailmary                  78.95           80.24        80.88           64.03             75.00            79.89            62.08               80.71         81.27              80.14               75.94
+brazen_mk_sharp           78.06           80.98        86.29           59.24             77.44            78.84            56.70               79.89         86.20              84.12               68.70
+
+### with main_it8: P(better of two > 85)
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  tree long closure  tree short closure
+main_it8                  0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+final_main                0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+war_it8                   0.000           0.000         0.02             0.0               0.0            0.000              0.0               0.000         0.010              0.000                 0.0
+nowar_it8                 0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+hailmary                  0.000           0.000         0.00             0.0               0.0            0.000              0.0               0.000         0.000              0.000                 0.0
+brazen_mk_sharp           0.003           0.007         0.32             0.0               0.0            0.003              0.0               0.005         0.313              0.038                 0.0
+
+### with main_it8: mean of better of two
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  tree long closure  tree short closure
+main_it8                  66.56           74.33        75.51           58.27             70.08            68.24            59.10               75.44         76.58              74.67               73.71
+final_main                68.34           74.70        75.52           61.64             70.56            69.88            62.57               75.70         76.58              74.68               74.62
+war_it8                   67.52           76.35        82.07           58.50             70.78            69.45            59.25               77.22         81.56              79.38               73.82
+nowar_it8                 70.67           74.36        75.51           66.40             70.08            71.69            67.50               75.44         76.58              74.67               73.71
+hailmary                  67.14           75.75        78.75           58.51             70.40            69.31            59.32               76.99         79.01              77.32               73.82
+brazen_mk_sharp           67.25           75.62        83.54           58.50             71.53            69.15            59.27               76.48         83.62              81.02               73.84

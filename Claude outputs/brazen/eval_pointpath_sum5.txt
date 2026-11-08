@@ -1,0 +1,61 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done tree calibrated
+done tree no closure
+done tree Merrow closes
+done tree big war
+done exact modal path
+done near miss (+-1 wk)
+done exact big-war path
+
+### single-file mean total
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  exact modal path  near miss (+-1 wk)  exact big-war path
+main_it8                  66.56           74.33        75.51           58.27            68.24            59.10               75.44         76.58             76.90               76.95               78.53
+brazen_mk_sharp           58.17           70.14        83.54           47.78            61.78            48.67               71.22         83.62             66.63               69.77               84.37
+path_m223_l5              48.14           53.53        49.89           43.61            46.40            42.82               51.08         51.42             83.49               64.64               60.55
+path_m224_l5              48.94           54.35        50.70           45.95            50.71            46.13               55.28         52.30             68.43               63.30               59.23
+path_m223_l8              55.33           66.79        63.18           46.50            61.91            49.54               71.75         63.57             77.04               71.47               66.75
+path_bigwar               51.88           61.06        72.70           45.04            54.09            44.40               61.77         75.68             69.45               66.38               87.31
+path_calm                 35.72           18.72        19.70           51.78            32.63            53.01               17.97         20.27             24.23               19.36               23.02
+
+### single-file P(total > 85)
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  exact modal path  near miss (+-1 wk)  exact big-war path
+main_it8                  0.000           0.000         0.00             0.0            0.000              0.0               0.000         0.000             0.000               0.000               0.000
+brazen_mk_sharp           0.003           0.007         0.32             0.0            0.003              0.0               0.005         0.313             0.000               0.002               0.425
+path_m223_l5              0.000           0.000         0.00             0.0            0.000              0.0               0.002         0.000             0.688               0.008               0.000
+path_m224_l5              0.000           0.000         0.00             0.0            0.002              0.0               0.000         0.000             0.000               0.008               0.000
+path_m223_l8              0.000           0.000         0.00             0.0            0.005              0.0               0.010         0.000             0.003               0.000               0.000
+path_bigwar               0.000           0.003         0.01             0.0            0.002              0.0               0.000         0.080             0.000               0.005               0.862
+path_calm                 0.000           0.000         0.00             0.0            0.000              0.0               0.000         0.000             0.000               0.000               0.000
+
+### single-file 90th percentile
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  exact modal path  near miss (+-1 wk)  exact big-war path
+main_it8                  77.65           78.47        77.85           70.12            77.79            70.54               78.50         78.83             78.74               79.17               79.83
+brazen_mk_sharp           78.06           80.98        86.29           59.24            78.84            56.70               79.89         86.20             70.36               76.15               85.77
+path_m223_l5              67.17           72.99        57.23           58.60            73.90            56.34               76.90         61.54             88.45               80.52               62.38
+path_m224_l5              64.00           71.56        56.25           60.50            69.42            60.14               74.53         61.01             72.29               76.28               61.03
+path_m223_l8              73.77           78.22        68.35           60.12            78.63            61.36               80.46         68.28             79.72               79.10               68.44
+path_bigwar               65.77           70.80        79.27           59.06            67.56            58.54               68.83         84.28             73.21               74.55               89.82
+path_calm                 64.13           26.88        23.00           73.23            64.78            70.85               24.68         24.05             26.51               23.70               24.16
+
+### with main_it8: P(better of two > 85)
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  exact modal path  near miss (+-1 wk)  exact big-war path
+main_it8                  0.000           0.000         0.00             0.0            0.000              0.0               0.000         0.000             0.000               0.000               0.000
+brazen_mk_sharp           0.003           0.007         0.32             0.0            0.003              0.0               0.005         0.313             0.000               0.002               0.425
+path_m223_l5              0.000           0.000         0.00             0.0            0.000              0.0               0.002         0.000             0.688               0.008               0.000
+path_m224_l5              0.000           0.000         0.00             0.0            0.002              0.0               0.000         0.000             0.000               0.008               0.000
+path_m223_l8              0.000           0.000         0.00             0.0            0.005              0.0               0.010         0.000             0.003               0.000               0.000
+path_bigwar               0.000           0.003         0.01             0.0            0.002              0.0               0.000         0.080             0.000               0.005               0.862
+path_calm                 0.000           0.000         0.00             0.0            0.000              0.0               0.000         0.000             0.000               0.000               0.000
+
+### with main_it8: mean of better of two
+                 it8 status quo  it8 Merrow war  it8 big war  it8 no closure  tree calibrated  tree no closure  tree Merrow closes  tree big war  exact modal path  near miss (+-1 wk)  exact big-war path
+main_it8                  66.56           74.33        75.51           58.27            68.24            59.10               75.44         76.58             76.90               76.95               78.53
+brazen_mk_sharp           67.25           75.62        83.54           58.50            69.15            59.27               76.48         83.62             77.01               77.29               84.37
+path_m223_l5              66.88           74.50        75.51           58.78            68.69            59.86               75.81         76.58             84.80               77.61               78.53
+path_m224_l5              66.95           74.51        75.51           59.26            68.89            60.25               75.73         76.58             76.90               77.22               78.53
+path_m223_l8              66.93           74.81        75.51           58.74            68.93            59.83               76.30         76.58             77.82               77.30               78.53
+path_bigwar               66.76           74.42        76.11           58.57            68.38            59.44               75.46         78.36             76.98               77.10               87.35
+path_calm                 68.29           74.33        75.51           62.85            69.92            63.22               75.44         76.58             76.90               76.95               78.53

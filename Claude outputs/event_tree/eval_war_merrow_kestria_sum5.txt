@@ -1,0 +1,65 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done it8 late closure
+done it8 tariff fails
+done it8 cobalt ban fails
+done it8 RE ban fails
+done it8 all three certain
+done tree calibrated
+done tree no closure
+done tree tariff fails
+done tree bans fizzle
+done tree short bans
+
+### single-file mean total by world
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             66.56           74.33        75.51           58.27             70.08             56.29                 62.06             56.37                  67.06            68.24            59.10              59.65             50.77            63.49
+war              61.67           74.79        82.07           49.80             67.89             55.87                 59.75             54.10                  62.56            64.77            49.72              59.75             50.08            60.86
+nowar            55.04           43.19        46.77           64.99             35.90             42.39                 49.02             42.10                  54.62            49.48            64.21              41.02             33.41            46.99
+war_mk           58.97           71.32        83.60           48.21             69.45             54.58                 58.11             51.98                  60.14            62.51            48.82              58.34             48.16            58.77
+
+### brier
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             0.500           0.537        0.507           0.458             0.450            -0.389                 0.368             0.387                  0.523            0.503            0.436             -0.520             0.269            0.415
+war              0.173           0.541        0.760          -0.148             0.329            -0.959                 0.011             0.069                  0.227            0.217           -0.293             -1.168            -0.164            0.029
+nowar            0.477           0.335        0.241           0.590             0.416            -0.365                 0.353             0.351                  0.491            0.472            0.622             -0.459             0.290            0.421
+war_mk          -0.083           0.314        0.844          -0.423             0.432            -1.356                -0.254            -0.199                  0.001           -0.033           -0.624             -1.623            -0.511           -0.282
+
+### price
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+war              0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+nowar            0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+war_mk           0.091           0.091        0.174           0.075             0.083             0.087                -0.075            -0.069                  0.087             0.05            0.053              0.057            -0.302           -0.076
+
+### F
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             0.725           0.882        0.918           0.575             0.822             0.661                 0.718             0.674                  0.730            0.783            0.629              0.738             0.664            0.732
+war              0.703           0.876        0.935           0.540             0.809             0.633                 0.696             0.650                  0.708            0.764            0.587              0.715             0.636            0.704
+nowar            0.640           0.523        0.576           0.737             0.425             0.555                 0.608             0.544                  0.630            0.586            0.752              0.557             0.507            0.567
+war_mk           0.685           0.867        0.929           0.517             0.797             0.618                 0.680             0.629                  0.692            0.747            0.564              0.699             0.610            0.685
+
+### fs
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             0.928           0.971        0.939           0.856             0.964             0.906                 0.917             0.718                  0.930            0.920            0.829              0.921             0.626            0.934
+war              0.930           0.981        0.991           0.867             0.974             0.904                 0.927             0.730                  0.945            0.918            0.825              0.920             0.624            0.929
+nowar            0.606           0.385        0.491           0.804             0.162             0.564                 0.571             0.363                  0.597            0.472            0.727              0.499             0.192            0.505
+war_mk           0.921           0.979        0.992           0.859             0.969             0.899                 0.923             0.727                  0.936            0.916            0.822              0.919             0.623            0.922
+
+### div
+        it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main             0.874           0.874        0.874           0.874             0.874             0.874                 0.874             0.874                  0.874            0.874            0.874              0.874             0.874            0.874
+war              0.900           0.900        0.900           0.900             0.900             0.900                 0.900             0.900                  0.900            0.900            0.900              0.900             0.900            0.900
+nowar            0.778           0.778        0.778           0.778             0.778             0.778                 0.778             0.778                  0.778            0.778            0.778              0.778             0.778            0.778
+war_mk           0.927           0.927        0.927           0.927             0.927             0.927                 0.927             0.927                  0.927            0.927            0.927              0.927             0.927            0.927
+
+### best of two (mean over futures of the better file's total)
+                it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  it8 tariff fails  it8 cobalt ban fails  it8 RE ban fails  it8 all three certain  tree calibrated  tree no closure  tree tariff fails  tree bans fizzle  tree short bans
+main + nowar             70.67           74.36        75.51           66.40             70.08             59.80                 66.18             61.20                  71.24            71.69            67.50              62.37             55.48            68.32
+war + nowar              70.00           74.89        82.07           65.83             67.89             60.14                 66.35             61.19                  71.24            71.91            66.69              63.03             55.64            68.29
+nowar + war_mk           68.26           71.45        83.60           65.70             69.46             59.22                 65.15             59.64                  69.74            70.02            66.63              61.95             54.30            66.72
+main + war               67.52           76.35        82.07           58.50             70.78             57.59                 63.31             57.55                  68.13            69.45            59.25              60.95             51.82            64.46
+main + war_mk            67.34           75.78        83.60           58.55             71.89             57.34                 63.15             57.36                  67.99            69.24            59.29              60.58             51.49            64.28
+war + war_mk             61.86           75.06        83.67           49.94             70.08             56.18                 60.11             54.45                  62.85            65.18            50.02              60.09             50.34            61.22

@@ -1,0 +1,78 @@
+done it8 status quo
+done it8 Merrow war
+done it8 big war
+done it8 no closure
+done it8 late closure
+done tree calibrated
+done tree Merrow closes
+done tree no closure
+done tree all fizzle
+done tree long closure
+done tree late closure
+done tree short closure
+
+### single-file mean total by world
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 67.27           74.45        75.05           59.40             70.10            68.43               75.75            59.78            25.45              74.79              70.66               73.76
+war                  62.56           74.95        82.09           50.91             67.85            64.91               76.76            50.59            23.09              79.50              68.64               68.58
+tree_cal             64.41           72.30        63.45           57.71             68.51            69.72               76.24            62.84            32.47              75.39              72.06               73.90
+tree_war             62.01           74.23        73.91           50.29             66.95            66.61               77.78            53.17            24.87              78.23              69.00               71.24
+tree_nowar           41.58           22.54        24.93           59.97             32.11            40.93               22.51            66.52            38.76              20.00              31.15               27.88
+nowar_m1             55.23           42.65        46.34           65.44             35.14            49.14               38.46            64.32            33.71              30.11              31.68               49.87
+
+### brier
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 0.500           0.537        0.507           0.458             0.450            0.503               0.551            0.423           -0.077              0.501              0.412               0.523
+war                  0.173           0.541        0.760          -0.148             0.329            0.217               0.601           -0.308           -1.115              0.738              0.289               0.226
+tree_cal             0.482           0.520        0.505           0.445             0.452            0.520               0.582            0.426           -0.048              0.521              0.429               0.508
+tree_war             0.304           0.560        0.660           0.085             0.343            0.368               0.646           -0.016           -0.690              0.659              0.305               0.373
+tree_nowar           0.443           0.271        0.164           0.581             0.375            0.447               0.298            0.633            0.318              0.196              0.366               0.413
+nowar_m1             0.477           0.335        0.241           0.590             0.416            0.472               0.359            0.610            0.225              0.267              0.390               0.445
+
+### price
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 0.091           0.091        0.174           0.075             0.083            0.050               0.068            0.060           -0.301              0.054              0.057               0.055
+war                  0.091           0.091        0.174           0.075             0.083            0.050               0.068            0.060           -0.301              0.054              0.057               0.055
+tree_cal             0.093           0.090        0.162           0.080             0.084            0.057               0.073            0.066           -0.285              0.060              0.062               0.060
+tree_war             0.093           0.091        0.162           0.080             0.084            0.057               0.072            0.066           -0.286              0.060              0.062               0.060
+tree_nowar           0.093           0.090        0.163           0.079             0.084            0.057               0.073            0.066           -0.287              0.060              0.062               0.060
+nowar_m1             0.091           0.091        0.174           0.075             0.083            0.050               0.068            0.060           -0.301              0.054              0.057               0.055
+
+### F
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 0.734           0.886        0.915           0.589             0.824            0.788               0.908            0.640            0.358              0.913              0.849               0.873
+war                  0.711           0.880        0.936           0.553             0.811            0.769               0.904            0.600            0.299              0.915              0.840               0.860
+tree_cal             0.753           0.885        0.798           0.656             0.842            0.844               0.931            0.746            0.559              0.941              0.901               0.904
+tree_war             0.708           0.875        0.880           0.560             0.809            0.785               0.910            0.632            0.352              0.921              0.852               0.870
+tree_nowar           0.501           0.261        0.327           0.742             0.437            0.499               0.258            0.831            0.720              0.245              0.439               0.343
+nowar_m1             0.641           0.521        0.571           0.744             0.413            0.585               0.468            0.754            0.586              0.381              0.381               0.602
+
+### fs
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 0.945           0.970        0.923           0.884             0.962            0.919               0.991            0.838            0.139              0.987              0.987               0.994
+war                  0.956           0.980        0.989           0.894             0.968            0.915               0.992            0.835            0.136              0.993              0.990               0.993
+tree_cal             0.814           0.909        0.630           0.711             0.877            0.883               0.971            0.806            0.115              0.969              0.964               0.978
+tree_war             0.878           0.947        0.803           0.757             0.921            0.907               0.992            0.818            0.121              0.991              0.977               0.991
+tree_nowar           0.309           0.008        0.048           0.612             0.044            0.300               0.001            0.720            0.028              0.000              0.015               0.003
+nowar_m1             0.612           0.363        0.479           0.814             0.149            0.458               0.260            0.732            0.063              0.116              0.083               0.481
+
+### div
+            it8 status quo  it8 Merrow war  it8 big war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+main                 0.874           0.874        0.874           0.874             0.874            0.874               0.874            0.874            0.874              0.874              0.874               0.874
+war                  0.900           0.900        0.900           0.900             0.900            0.900               0.900            0.900            0.900              0.900              0.900               0.900
+tree_cal             0.809           0.809        0.809           0.809             0.809            0.809               0.809            0.809            0.809              0.809              0.809               0.809
+tree_war             0.892           0.892        0.892           0.892             0.892            0.892               0.892            0.892            0.892              0.892              0.892               0.892
+tree_nowar           0.659           0.659        0.659           0.659             0.659            0.659               0.659            0.659            0.659              0.659              0.659               0.659
+nowar_m1             0.778           0.778        0.778           0.778             0.778            0.778               0.778            0.778            0.778              0.778              0.778               0.778
+
+### best of two (mean over futures of the better file's total)
+                       it8 status quo  it8 Merrow war  it8 big war  it8 mix 50% war  it8 no closure  it8 late closure  tree calibrated  tree Merrow closes  tree no closure  tree all fizzle  tree long closure  tree late closure  tree short closure
+tree_war + tree_nowar           68.07           74.23        73.91            71.12           63.64             66.98            73.77               77.78            70.06            42.37              78.23              69.10               71.24
+war + tree_nowar                69.19           74.95        82.09            72.78           65.37             67.93            73.31               76.76            70.23            42.68              79.50              68.69               68.58
+main + tree_nowar               70.80           74.45        75.05            72.69           67.44             70.12            73.18               75.75            71.11            43.09              74.79              70.70               73.76
+tree_war + nowar_m1             70.12           74.25        73.91            72.15           65.93             67.06            72.68               77.78            67.30            36.61              78.23              69.00               71.24
+war + nowar_m1                  70.64           74.98        82.09            73.52           66.43             67.85            72.00               76.76            67.18            36.44              79.50              68.64               68.58
+main + nowar_m1                 71.30           74.45        75.05            72.94           67.19             70.10            71.78               75.75            67.98            36.76              74.79              70.66               73.76
+war + tree_cal                  68.20           76.46        82.09            72.90           61.37             71.45            71.42               78.13            63.62            33.45              79.52              72.73               74.40
+main + tree_cal                 69.02           75.15        75.05            72.08           63.04             71.38            71.16               77.15            64.34            33.85              76.13              72.78               74.86
+main + war                      68.25           76.50        82.09            72.94           59.61             70.81            69.66               77.71            59.92            25.59              79.50              70.98               73.90
